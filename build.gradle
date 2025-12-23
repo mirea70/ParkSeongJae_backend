@@ -1,0 +1,41 @@
+plugins {
+    id 'org.springframework.boot' version '3.5.9' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+group = 'com.wirebarly'
+version = '0.0.1'
+
+subprojects {
+    def libraryModules = ['domain', 'port', 'usecase'] as Set
+
+    switch (name) {
+        case { libraryModules.contains(it) }:
+            apply plugin: 'java-library'
+            break
+        default:
+            apply plugin: 'java'
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        // lombok
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    }
+}
