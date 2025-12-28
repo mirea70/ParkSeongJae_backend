@@ -7,8 +7,16 @@ bootJar { enabled = true }
 jar { enabled = false }
 
 dependencies {
+    // module
+    implementation project(':domain')
+    implementation project(':application')
+    implementation project(':port')
+
     // web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // orm
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
