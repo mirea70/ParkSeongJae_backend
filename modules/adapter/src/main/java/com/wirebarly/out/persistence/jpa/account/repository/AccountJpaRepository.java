@@ -10,8 +10,6 @@ import java.util.Optional;
 public interface AccountJpaRepository extends JpaRepository<AccountJpaEntity, Long> {
 
     /**
-     *
-     * Hibernate:
      *     SELECT *
      *     FROM account
      *     WHERE account_id=?
