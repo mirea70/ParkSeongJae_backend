@@ -1,7 +1,10 @@
 package com.wirebarly.service.account;
 
 import com.wirebarly.account.model.Account;
+import com.wirebarly.account.model.AccountId;
 import com.wirebarly.customer.model.CustomerId;
+import com.wirebarly.error.exception.BusinessException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.error.info.CustomerErrorInfo;
 import com.wirebarly.in.account.command.AccountCreateCommand;
 import com.wirebarly.in.account.result.AccountResult;
@@ -9,7 +12,6 @@ import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.out.account.AccountOutPort;
 import com.wirebarly.out.common.IdGenerator;
 import com.wirebarly.out.customer.CustomerOutPort;
-import com.wirebarly.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ public class AccountService implements AccountUseCase {
             throw new BusinessException(CustomerErrorInfo.NOT_FOUND);
         }
 
-        Account savedAccount = accountOutPort.save(
+        Account savedAccount = accountOutPort.insert(
                 Account.createNew(
                         idGenerator.nextId(),
                         command.customerId(),
@@ -41,5 +43,18 @@ public class AccountService implements AccountUseCase {
         );
 
         return AccountResult.from(savedAccount);
+    }
+
+    @Override
+    public void remove(Long accountId) {
+        Account account = accountOutPort.loadOne(new AccountId(accountId))
+                        .orElseThrow(() -> new BusinessException(AccountErrorInfo.NOT_FOUND));
+
+        if(!customerOutPort.isExist(account.getCustomerId())) {
+            throw new BusinessException(CustomerErrorInfo.NOT_FOUND);
+        }
+
+        account.close(LocalDateTime.now());
+        accountOutPort.update(account);
     }
 }

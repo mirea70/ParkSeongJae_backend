@@ -46,4 +46,9 @@ public class Account {
                 closedAt
         );
     }
+
+    public void close(LocalDateTime now) {
+        this.status = AccountStatus.CLOSED;
+        this.closedAt = now;
+    }
 }

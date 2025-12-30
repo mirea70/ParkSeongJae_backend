@@ -4,14 +4,17 @@ import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.in.web.ControllerTestSupport;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.stream.Stream;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -134,5 +137,20 @@ class AccountControllerTest extends ControllerTestSupport {
                         "계좌번호는 10~20자리여야 합니다."
                 )
         );
+    }
+
+    @DisplayName("삭제 요청 시, 숫자가 아닌 값이 입력되면 실패한다.")
+    @Test
+    void deleteAccountWhenNotNumber() throws Exception {
+        // given
+        String accountId = "abc";
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId));
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
     }
 }

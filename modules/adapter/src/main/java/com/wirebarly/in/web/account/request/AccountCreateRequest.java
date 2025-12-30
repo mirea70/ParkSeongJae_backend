@@ -14,8 +14,8 @@ public record AccountCreateRequest(
         @NotBlank(message = "은행코드는 값이 존재해야합니다.")
         String bankCode,
 
-        @NotBlank(message = "계좌번호는 값이 존재해야합니다.")
         @Size(min = 10, max = 20, message = "계좌번호는 10~20자리여야 합니다.")
+        @NotBlank(message = "계좌번호는 값이 존재해야합니다.")
         String accountNumber
 ) {
     public AccountCreateCommand toCommand() {

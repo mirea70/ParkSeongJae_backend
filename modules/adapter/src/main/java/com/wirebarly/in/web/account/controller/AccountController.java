@@ -7,10 +7,7 @@ import com.wirebarly.in.web.account.response.AccountResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @WebAdapter
 @RestController
@@ -24,5 +21,11 @@ public class AccountController {
         return ResponseEntity.ok(AccountResponse.from(
                 accountUseCase.register(request.toCommand())
         ));
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable("accountId") Long accountId) {
+        accountUseCase.remove(accountId);
+        return ResponseEntity.ok().build();
     }
 }

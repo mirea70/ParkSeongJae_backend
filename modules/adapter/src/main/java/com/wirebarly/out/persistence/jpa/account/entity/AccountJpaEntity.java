@@ -1,6 +1,8 @@
 package com.wirebarly.out.persistence.jpa.account.entity;
 
 import com.wirebarly.account.model.Account;
+import com.wirebarly.error.exception.BusinessException;
+import com.wirebarly.error.info.CommonErrorInfo;
 import com.wirebarly.out.persistence.jpa.common.BaseJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "account")
@@ -40,13 +43,16 @@ public class AccountJpaEntity extends BaseJpaEntity {
     private LocalDateTime closedAt;
 
     @Builder
-    private AccountJpaEntity(Long accountId, Long customerId, String bankCode, String accountNumber, String status, Long balance) {
+    private AccountJpaEntity(Long accountId, Long customerId, String bankCode, String accountNumber, String status, Long balance, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime closedAt) {
         this.accountId = accountId;
         this.customerId = customerId;
         this.bankCode = bankCode;
         this.accountNumber = accountNumber;
         this.status = status;
         this.balance = balance;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.closedAt = closedAt;
     }
 
     public static AccountJpaEntity from(Account account) {
@@ -57,6 +63,9 @@ public class AccountJpaEntity extends BaseJpaEntity {
                 .accountNumber(account.getBankInfo().getAccountNumber().getValue())
                 .status(account.getStatus().name())
                 .balance(account.getBalance().getValue())
+                .createdAt(account.getCreatedAt())
+                .updatedAt(account.getUpdatedAt())
+                .closedAt(account.getClosedAt())
                 .build();
     }
 
@@ -72,5 +81,18 @@ public class AccountJpaEntity extends BaseJpaEntity {
                 updatedAt,
                 closedAt
         );
+    }
+
+    public void updateFrom(Account domain) {
+        if (domain == null || domain.getId() == null) {
+            throw new BusinessException(CommonErrorInfo.INTERNAL_SERVER_ERROR, Map.of("cause", "도메인 객체가 유실되는 문제가 발생했습니다."));
+        }
+
+        this.bankCode = domain.getBankInfo().getBankCode().getCode();
+        this.accountNumber = domain.getBankInfo().getAccountNumber().getValue();
+        this.status = domain.getStatus().name();
+        this.balance = domain.getBalance().getValue();
+        this.updatedAt = domain.getUpdatedAt();
+        this.closedAt = domain.getClosedAt();
     }
 }

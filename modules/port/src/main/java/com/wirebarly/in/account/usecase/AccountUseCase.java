@@ -5,4 +5,5 @@ import com.wirebarly.in.account.result.AccountResult;
 
 public interface AccountUseCase {
     AccountResult register(AccountCreateCommand command);
+    void remove(Long accountId);
 }

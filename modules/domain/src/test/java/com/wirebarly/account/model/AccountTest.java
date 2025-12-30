@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AccountTest {
 
     @Test
-    @DisplayName("생성 시, 기본 상태: ACTIVE / 잔액: 0 / 삭제일시 null로 초기화한다")
+    @DisplayName("계좌는 생성될 때, 상태: ACTIVE / 잔액: 0 / 삭제일시 null로 초기화된다.")
     void create_initializes_defaults() {
         // given
         AccountStatus initStatus = AccountStatus.ACTIVE;
@@ -41,5 +41,27 @@ class AccountTest {
         assertThat(account.getCreatedAt()).isEqualTo(now);
         assertThat(account.getUpdatedAt()).isEqualTo(now);
         assertThat(account.getUpdatedAt()).isAfterOrEqualTo(account.getCreatedAt());
+    }
+
+    @DisplayName("계좌는 해지 시, 해지상태로 변경되며 해지날짜가 기록된다.")
+    @Test
+    void close() {
+        // given
+        LocalDateTime now = LocalDateTime.now();
+
+        Account account = Account.createNew(
+                1L,
+                2L,
+                BankCode.IBK.getCode(),
+                "123123112132",
+                now
+                );
+
+        // when
+        account.close(now);
+
+        // then
+        assertThat(account.getStatus()).isEqualTo(AccountStatus.CLOSED);
+        assertThat(account.getClosedAt()).isEqualTo(now);
     }
 }
