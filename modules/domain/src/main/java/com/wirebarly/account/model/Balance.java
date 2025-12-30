@@ -2,15 +2,16 @@ package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
 import com.wirebarly.error.info.AccountErrorInfo;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Balance {
     private long value;
 
-    public Balance(Long input) {
+    Balance(Long input) {
         validate(input);
         this.value = input;
     }

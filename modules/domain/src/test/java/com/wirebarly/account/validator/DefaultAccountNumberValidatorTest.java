@@ -1,6 +1,7 @@
 package com.wirebarly.account.validator;
 
 import com.wirebarly.account.model.AccountNumber;
+import com.wirebarly.account.model.AccountNumberFactory;
 import com.wirebarly.error.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,15 +28,15 @@ class DefaultAccountNumberValidatorTest {
     static Stream<Arguments> accountNumberCases() {
         return Stream.of(
                 Arguments.of(
-                        new AccountNumber("1324"),
+                        AccountNumberFactory.of("1324"),
                         "계좌번호는 길이가 10 이상, 20 이하여야 합니다."
                 ),
                 Arguments.of(
-                        new AccountNumber("1324333333333333333333333333333333"),
+                        AccountNumberFactory.of("1324333333333333333333333333333333"),
                         "계좌번호는 길이가 10 이상, 20 이하여야 합니다."
                 ),
                 Arguments.of(
-                        new AccountNumber("0000000000000"),
+                        AccountNumberFactory.of("0000000000000"),
                         "계좌번호의 값이 모두 0일 경우는 불가능합니다."
                 )
         );

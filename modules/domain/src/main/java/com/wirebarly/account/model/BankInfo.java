@@ -11,7 +11,7 @@ public class BankInfo {
     private final BankCode bankCode;
     private final AccountNumber accountNumber;
 
-    public static BankInfo of(String bankCodeInput, String accountNumberInput) {
+    static BankInfo of(String bankCodeInput, String accountNumberInput) {
         BankCode bankCode = BankCode.from(bankCodeInput);
         AccountNumber accountNumber = new AccountNumber(accountNumberInput);
         AccountNumberValidateExecutor.execute(bankCode, accountNumber);

@@ -20,7 +20,7 @@ public enum BankCode {
     private final String code;
     private final String description;
 
-    public static BankCode from(String code) {
+    static BankCode from(String code) {
         if (!MyStringUtils.isPositiveNumber(code)) {
             throw new DomainException(AccountErrorInfo.BANK_CODE_NOT_POSITIVE);
         }

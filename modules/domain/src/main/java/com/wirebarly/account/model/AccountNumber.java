@@ -9,11 +9,10 @@ import lombok.Getter;
 public class AccountNumber {
     private final String value;
 
-    public AccountNumber(String input) {
+    AccountNumber(String input) {
         validate(input);
         this.value = normalize(input);
     }
-
     private void validate(String input) {
         if (MyStringUtils.isEmpty(input))
             throw new DomainException(AccountErrorInfo.NUMBER_NOT_EXIST);
