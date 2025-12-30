@@ -8,5 +8,15 @@ import java.util.Optional;
 
 @Repository
 public interface AccountJpaRepository extends JpaRepository<AccountJpaEntity, Long> {
+
+    /**
+     *
+     * Hibernate:
+     *     SELECT *
+     *     FROM account
+     *     WHERE account_id=?
+     *     AND status=?
+     *     AND closed_at is null
+     */
     Optional<AccountJpaEntity> findByAccountIdAndStatusAndClosedAtIsNull(Long accountId, String status);
 }
