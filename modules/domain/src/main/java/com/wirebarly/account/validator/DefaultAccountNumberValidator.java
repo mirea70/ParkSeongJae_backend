@@ -11,7 +11,7 @@ public class DefaultAccountNumberValidator implements AccountNumberValidator {
     public void validate(AccountNumber accountNumber) {
         String rawValue = accountNumber.getValue();
 
-        if (rawValue.length() < AccountPolicy.accountNumberMinLength || rawValue.length() > AccountPolicy.accountNumberMaxLength)
+        if (rawValue.length() < AccountPolicy.ACCOUNT_NUMBER_MIN_LEN || rawValue.length() > AccountPolicy.ACCOUNT_NUMBER_MAX_LEN)
             throw new DomainException(AccountErrorInfo.INVALID_NUMBER_SIZE);
         if (isAllZero(rawValue))
             throw new DomainException(AccountErrorInfo.NUMBER_NOT_ALL_ZERO);

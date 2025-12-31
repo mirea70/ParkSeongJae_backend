@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public enum AccountTransactionType {
     DEPOSIT("입금"),
-    WITHDRAW("출금"),
-    TRANSFER("송금"),
-    TRANSFER_FEE("송금 수수료");
+    WITHDRAW("출금");
 
     private final String description;
 

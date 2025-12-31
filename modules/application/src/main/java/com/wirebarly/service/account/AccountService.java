@@ -9,6 +9,7 @@ import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.error.info.CustomerErrorInfo;
 import com.wirebarly.in.account.command.AccountCreateCommand;
 import com.wirebarly.in.account.command.AccountDepositCommand;
+import com.wirebarly.in.account.command.AccountWithdrawCommand;
 import com.wirebarly.in.account.result.AccountResult;
 import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.out.account.AccountOutPort;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -63,6 +65,20 @@ public class AccountService implements AccountUseCase {
 
         Long accountTransactionId = idGenerator.nextId();
         AccountTransaction accountTransaction = account.deposit(command.amount(), LocalDateTime.now(), accountTransactionId);
+
+        accountTransactionOutPort.insert(accountTransaction);
+        accountOutPort.update(account);
+    }
+
+    @Override
+    public void withdraw(Long accountId, AccountWithdrawCommand command) {
+        Account account = getValidatedAccount(accountId);
+
+        Long accountTransactionId = idGenerator.nextId();
+
+        LocalDate today = LocalDateTime.now().toLocalDate();
+        Long dailyWithdrawAmount = accountTransactionOutPort.getDailyWithdrawAmount(account.getId(), today);
+        AccountTransaction accountTransaction = account.withdraw(command.amount(), LocalDateTime.now(), accountTransactionId, dailyWithdrawAmount);
 
         accountTransactionOutPort.insert(accountTransaction);
         accountOutPort.update(account);

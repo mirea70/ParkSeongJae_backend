@@ -4,6 +4,7 @@ import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.in.web.WebAdapter;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
+import com.wirebarly.in.web.account.request.AccountWithdrawRequest;
 import com.wirebarly.in.web.account.response.AccountResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,13 @@ public class AccountController {
     public ResponseEntity<Void> deposit(@PathVariable("accountId") Long accountId,
                                         @Valid @RequestBody AccountDepositRequest request) {
         accountUseCase.deposit(accountId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{accountId}/withdraw")
+    public ResponseEntity<Void> withdraw(@PathVariable("accountId") Long accountId,
+                                        @Valid @RequestBody AccountWithdrawRequest request) {
+        accountUseCase.withdraw(accountId, request.toCommand());
         return ResponseEntity.ok().build();
     }
 }

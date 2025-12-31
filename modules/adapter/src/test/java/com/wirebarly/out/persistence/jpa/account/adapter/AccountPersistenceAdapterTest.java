@@ -3,17 +3,12 @@ package com.wirebarly.out.persistence.jpa.account.adapter;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.BankCode;
+import com.wirebarly.out.persistence.jpa.PersistenceAdapterJpaTestSupport;
 import com.wirebarly.out.persistence.jpa.account.entity.AccountJpaEntity;
-import com.wirebarly.out.persistence.jpa.account.repository.AccountJpaRepository;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,19 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@DataJpaTest
-@ActiveProfiles("test")
-@Import(AccountPersistenceAdapter.class)
-class AccountPersistenceAdapterTest {
-
-    @Autowired
-    private AccountPersistenceAdapter accountPersistenceAdapter;
-
-    @Autowired
-    private AccountJpaRepository accountJpaRepository;
-
-    @Autowired
-    private EntityManager entityManager;
+class AccountPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
 
     @DisplayName("계좌 데이터 저장 시, 저장했던 정보가 잘 조회된다.")
     @Test
@@ -89,7 +72,7 @@ class AccountPersistenceAdapterTest {
                 .closedAt(null)
                 .build();
 
-        entityManager.persist(accountJpaEntity);
+        accountJpaRepository.save(accountJpaEntity);
 
         // when
         Optional<Account> result = accountPersistenceAdapter.loadOne(accountId);
@@ -131,7 +114,7 @@ class AccountPersistenceAdapterTest {
                 .closedAt(closedAt)
                 .build();
 
-        entityManager.persist(accountJpaEntity);
+        accountJpaRepository.save(accountJpaEntity);
 
         // when
         Optional<Account> result = accountPersistenceAdapter.loadOne(accountId);
@@ -185,7 +168,7 @@ class AccountPersistenceAdapterTest {
                 .closedAt(null)
                 .build();
 
-        entityManager.persist(accountJpaEntity);
+        accountJpaRepository.save(accountJpaEntity);
 
         // when
         accountPersistenceAdapter.update(afterAccount);

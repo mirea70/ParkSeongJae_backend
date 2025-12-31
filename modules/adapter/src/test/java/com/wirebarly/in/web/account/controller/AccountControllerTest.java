@@ -4,6 +4,7 @@ import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.in.web.ControllerTestSupport;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
+import com.wirebarly.in.web.account.request.AccountWithdrawRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -188,6 +189,47 @@ class AccountControllerTest extends ControllerTestSupport {
         // when
         ResultActions result = mockMvc.perform(
                 post("/api/v1/accounts/{accountId}/deposit", 1L)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("출금 요청 시, 계좌 ID가 숫자가 아닌 값이 입력되면 실패한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"abc"})
+    void withdrawWhenAccountIdNotNumber(String accountId) throws Exception {
+        // given
+        AccountWithdrawRequest request = new AccountWithdrawRequest(3000L);
+
+        // when
+        ResultActions result = mockMvc.perform(
+                post("/api/v1/accounts/{accountId}/withdraw", accountId)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("출금 요청 시, 입금금액은 양의 정수여야한다.")
+    @ParameterizedTest
+    @ValueSource(longs = {-1000L, 0})
+    @NullSource
+    void withdrawAmountCase(Long amount) throws Exception {
+        // given
+        AccountWithdrawRequest request = new AccountWithdrawRequest(amount);
+
+        // when
+        ResultActions result = mockMvc.perform(
+                post("/api/v1/accounts/{accountId}/withdraw", 1L)
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
         );

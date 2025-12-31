@@ -1,12 +1,16 @@
 package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,81 +73,248 @@ class AccountTest {
         assertThat(account.getClosedAt()).isEqualTo(now);
     }
 
-    @DisplayName("계좌에 입금하면 그 양만큼 현재잔액이 증가하며, 계좌 거래를 생성한다.")
-    @Test
-    void deposit() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+    @Nested
+    @DisplayName("입금 테스트")
+    class Deposit {
 
-        Account account = Account.createNew(
-                2L,
-                2L,
-                "039",
-                "123123123123123",
-                now
-        );
+        @DisplayName("계좌에 입금하면 그 양만큼 현재잔액이 증가하며, 계좌 거래를 생성한다.")
+        @Test
+        void deposit() {
+            // given
+            LocalDateTime now = LocalDateTime.now();
 
-        Long beforeBalance = account.getBalance().getValue();
-        Long amount = 10000L;
-        LocalDateTime afterAt = LocalDateTime.now().plusDays(1);
-        Long accountTransactionId = 1L;
+            Account account = Account.createNew(
+                    2L,
+                    2L,
+                    "039",
+                    "123123123123123",
+                    now
+            );
 
-        // when
-        AccountTransaction accountTransaction = account.deposit(amount, afterAt, accountTransactionId);
+            Long beforeBalance = account.getBalance().getValue();
+            Long amount = 10000L;
+            LocalDateTime afterAt = LocalDateTime.now().plusDays(1);
+            Long accountTransactionId = 1L;
 
-        // then
-        Long afterBalance = account.getBalance().getValue();
-        assertThat(afterBalance).isEqualTo(beforeBalance + amount);
-        assertThat(account.getUpdatedAt()).isEqualTo(afterAt);
-        assertThat(accountTransaction).isNotNull();
-        assertThat(accountTransaction.getId().getValue()).isEqualTo(accountTransactionId);
+            // when
+            AccountTransaction accountTransaction = account.deposit(amount, afterAt, accountTransactionId);
+
+            // then
+            Long afterBalance = account.getBalance().getValue();
+            assertThat(afterBalance).isEqualTo(beforeBalance + amount);
+            assertThat(account.getUpdatedAt()).isEqualTo(afterAt);
+            assertThat(accountTransaction).isNotNull();
+            assertThat(accountTransaction.getId().getValue()).isEqualTo(accountTransactionId);
+        }
+
+        @DisplayName("계좌에 입금할 금액은 양의 정수여야한다.")
+        @ParameterizedTest
+        @MethodSource("depositAmountCases")
+        void depositFailByAmount(Long amount, AccountErrorInfo errorInfo) {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+
+            Account account = Account.createNew(
+                    2L,
+                    2L,
+                    "039",
+                    "123123123123123",
+                    now
+            );
+
+            // when // then
+            assertThatThrownBy(() -> account.deposit(amount, now.plusDays(1), 1L))
+                    .isInstanceOf(DomainException.class)
+                    .extracting("errorInfo")
+                    .isEqualTo(errorInfo);
+        }
+
+        private static Stream<Arguments> depositAmountCases() {
+            return Stream.of(
+                    Arguments.of(
+                            null, AccountErrorInfo.DEPOSIT_NOT_EXIST
+                    ),
+                    Arguments.of(
+                            -1000L, AccountErrorInfo.DEPOSIT_NOT_POSITIVE
+                    ),
+                    Arguments.of(
+                            0L, AccountErrorInfo.DEPOSIT_NOT_POSITIVE
+                    )
+            );
+        }
+
+        @DisplayName("해지된 계좌에는 입금할 수 없다.")
+        @Test
+        void depositFailWhenClosed() {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+
+            Account account = Account.createNew(
+                    2L,
+                    2L,
+                    "039",
+                    "123123123123123",
+                    now
+            );
+            account.close(now.plusDays(1));
+
+            Long amount = 10000L;
+
+            // when // then
+            assertThatThrownBy(() -> account.deposit(amount, now.plusDays(1), 1L))
+                    .isInstanceOf(DomainException.class)
+                    .extracting("errorInfo")
+                    .isEqualTo(AccountErrorInfo.CLOSED);
+        }
     }
 
-    @DisplayName("계좌에 입금할 금액은 양의 정수여야한다.")
-    @ParameterizedTest
-    @CsvSource(value = {
-            "null, 계좌에 입금할 값이 비어있을 수 없습니다.",
-            "-1, 계좌에 입금할 값은 양의 정수여야 합니다.",
-            "0, 계좌에 입금할 값은 양의 정수여야 합니다.",
-    }, nullValues = "null")
-    void depositFailByAmount(Long amount, String errorMessage) {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+    @Nested
+    @DisplayName("출금 테스트")
+    class Withdraw {
 
-        Account account = Account.createNew(
-                2L,
-                2L,
-                "039",
-                "123123123123123",
-                now
-        );
+        @DisplayName("계좌에서 출금하면 그 양만큼 현재잔액이 감소하며, 계좌 거래를 생성한다.")
+        @Test
+        void withdraw() {
+            // given
+            LocalDateTime now = LocalDateTime.now();
 
-        // when // then
-        assertThatThrownBy(() -> account.deposit(amount, now.plusDays(1), 1L))
-                .isInstanceOf(DomainException.class)
-                .hasMessage(errorMessage);
-    }
+            Account account = Account.fromOutside(
+                    2L,
+                    2L,
+                    "039",
+                    "123123123123123",
+                    "ACTIVE",
+                    20000L,
+                    now,
+                    now,
+                    null
+            );
 
-    @DisplayName("해지된 계좌에는 입금할 수 없다.")
-    @Test
-    void depositFailWhenClosed() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+            Long beforeBalance = account.getBalance().getValue();
+            Long amount = 10000L;
+            LocalDateTime afterAt = LocalDateTime.now().plusDays(1);
+            Long accountTransactionId = 1L;
+            Long dailyWithdrawAmount = 0L;
 
-        Account account = Account.createNew(
-                2L,
-                2L,
-                "039",
-                "123123123123123",
-                now
-        );
-        account.close(now.plusDays(1));
+            // when
+            AccountTransaction accountTransaction = account.withdraw(amount, afterAt, accountTransactionId, dailyWithdrawAmount);
 
-        Long amount = 10000L;
+            // then
+            Long afterBalance = account.getBalance().getValue();
+            assertThat(afterBalance).isEqualTo(beforeBalance - amount);
+            assertThat(account.getUpdatedAt()).isEqualTo(afterAt);
+            assertThat(accountTransaction).isNotNull();
+            assertThat(accountTransaction.getId().getValue()).isEqualTo(accountTransactionId);
+        }
 
-        // when // then
-        assertThatThrownBy(() -> account.deposit(amount, now.plusDays(1), 1L))
-                .isInstanceOf(DomainException.class)
-                .hasMessage("해지된 계좌에는 요청이 불가능합니다.");
+        @DisplayName("계좌에 입금할 금액은 양의 정수여야한다.")
+        @ParameterizedTest
+        @MethodSource("withdrawAmountCases")
+        void withdrawFailByAmount(Long amount, AccountErrorInfo errorInfo) {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+
+            Account account = Account.createNew(
+                    2L,
+                    2L,
+                    "039",
+                    "123123123123123",
+                    now
+            );
+
+            // when // then
+            assertThatThrownBy(() -> account.withdraw(amount, now.plusDays(1), 1L, 0L))
+                    .isInstanceOf(DomainException.class)
+                    .extracting("errorInfo")
+                    .isEqualTo(errorInfo);
+        }
+
+        private static Stream<Arguments> withdrawAmountCases() {
+            return Stream.of(
+                    Arguments.of(
+                            null, AccountErrorInfo.WITHDRAW_NOT_EXIST
+                    ),
+                    Arguments.of(
+                            -1000L, AccountErrorInfo.WITHDRAW_NOT_POSITIVE
+                    ),
+                    Arguments.of(
+                            0L, AccountErrorInfo.WITHDRAW_NOT_POSITIVE
+                    )
+            );
+        }
+
+
+        @DisplayName("해지된 계좌에는 출금할 수 없다.")
+        @Test
+        void withdrawFailWhenClosed() {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+
+                Account account = Account.createNew(
+                        2L,
+                        2L,
+                        "039",
+                        "123123123123123",
+                        now
+                );
+                account.close(now.plusDays(1));
+
+                Long amount = 10000L;
+                Long dalyWithDrawAmount = 0L;
+
+                // when // then
+                assertThatThrownBy(() -> account.withdraw(amount, now.plusDays(1), 1L, dalyWithDrawAmount))
+                        .isInstanceOf(DomainException.class)
+                        .extracting("errorInfo")
+                        .isEqualTo(AccountErrorInfo.CLOSED);
+            }
+
+            @DisplayName("출금 일일한도액을 초과해서 출금할 수 없다.")
+            @Test
+            void withdrawFailWhenOverDailyLimit() {
+                // given
+                LocalDateTime now = LocalDateTime.now();
+
+                Account account = Account.createNew(
+                        2L,
+                        2L,
+                        "039",
+                        "123123123123123",
+                        now
+                );
+
+                Long amount = 10000L;
+                Long dalyWithDrawAmount = 999999L;
+
+                // when // then
+                assertThatThrownBy(() -> account.withdraw(amount, now.plusDays(1), 1L, dalyWithDrawAmount))
+                        .isInstanceOf(DomainException.class)
+                        .extracting("errorInfo")
+                        .isEqualTo(AccountErrorInfo.OVER_WITHDRAW_LIMIT);
+            }
+
+            @DisplayName("계좌의 잔액이 부족하면 출금할 수 없다.")
+            @Test
+            void withdrawFailWhenLackBalance() {
+                // given
+                LocalDateTime now = LocalDateTime.now();
+
+                Account account = Account.createNew(
+                        2L,
+                        2L,
+                        "039",
+                        "123123123123123",
+                        now
+                );
+
+                Long amount = 10000L;
+                Long dalyWithDrawAmount = 0L;
+
+                // when // then
+                assertThatThrownBy(() -> account.withdraw(amount, now.plusDays(1), 1L, dalyWithDrawAmount))
+                        .isInstanceOf(DomainException.class)
+                        .extracting("errorInfo")
+                        .isEqualTo(AccountErrorInfo.LACK_BALANCE);
+            }
     }
 }

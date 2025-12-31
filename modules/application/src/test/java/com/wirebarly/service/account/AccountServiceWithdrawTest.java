@@ -8,10 +8,13 @@ import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
 import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.error.info.CustomerErrorInfo;
-import com.wirebarly.in.account.command.AccountDepositCommand;
+import com.wirebarly.in.account.command.AccountWithdrawCommand;
+import com.wirebarly.out.account.AccountTransactionOutPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -20,31 +23,43 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-class AccountServiceDepositTest extends AccountServiceTestSupport {
+class AccountServiceWithdrawTest extends AccountServiceTestSupport {
 
-    @DisplayName("계좌에 입금하면 입금 거래를 생성하고 현재잔액을 그만큼 증가시킨다.")
+    @Mock
+    private AccountTransactionOutPort accountTransactionOutPort;
+
+    @DisplayName("계좌에서 출금하면 출금 거래가 생성되고 현재잔액을 그만큼 감소시킨다.")
     @Test
-    void deposit() {
+    void withdraw() {
         // given
         Long accountId = 5L;
-        Account account = spy(Account.createNew(
-                accountId,
+        LocalDateTime now = LocalDateTime.now();
+
+        Account account = spy(Account.fromOutside(
                 2L,
-                BankCode.IBK.getCode(),
-                "1231231231",
-                LocalDateTime.now()));
+                2L,
+                "039",
+                "123123123123123",
+                "ACTIVE",
+                20000L,
+                now,
+                now,
+                null
+        ));
         Long accountTransactionId = 1L;
+        Long dailyWithdrawAmount = 0L;
 
         given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
         given(idGenerator.nextId()).willReturn(accountTransactionId);
+        given(accountTransactionOutPort.getDailyWithdrawAmount(any(AccountId.class), any(LocalDate.class))).willReturn(dailyWithdrawAmount);
 
         // when
-        accountService.deposit(accountId, new AccountDepositCommand(1000L));
+        accountService.withdraw(accountId, new AccountWithdrawCommand(1000L));
 
         // then
         verify(accountOutPort, times(1)).loadOne(any(AccountId.class));
-        verify(account).deposit(any(Long.class), any(LocalDateTime.class), any(Long.class));
+        verify(account).withdraw(any(Long.class), any(LocalDateTime.class), any(Long.class), any(Long.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
         verify(accountOutPort, times(1)).update(account);
         verify(accountTransactionOutPort, times(1)).insert(any(AccountTransaction.class));
@@ -52,12 +67,12 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
 
     @DisplayName("계좌가 존재하지 않으면 예외를 던진다.")
     @Test
-    void depositFailWhenNoAccount() {
+    void withdrawFailWhenNoAccount() {
         // given
         given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.empty());
 
         // when // then
-        assertThatThrownBy(() -> accountService.deposit(1L, new AccountDepositCommand(1000L)))
+        assertThatThrownBy(() -> accountService.withdraw(1L, new AccountWithdrawCommand(1000L)))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorInfo")
                 .isEqualTo(AccountErrorInfo.NOT_FOUND);
@@ -65,7 +80,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
 
     @DisplayName("계좌를 소유한 고객이 존재하지 않으면 예외를 던진다.")
     @Test
-    void depositFailWhenNoCustomer() {
+    void withdrawFailWhenNoCustomer() {
         // given
         Account account = Account.createNew(
                 1L,
@@ -79,7 +94,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then
-        assertThatThrownBy(() -> accountService.deposit(1L, new AccountDepositCommand(1000L)))
+        assertThatThrownBy(() -> accountService.withdraw(1L, new AccountWithdrawCommand(1000L)))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorInfo")
                 .isEqualTo(CustomerErrorInfo.NOT_FOUND);

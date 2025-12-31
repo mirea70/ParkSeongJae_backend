@@ -1,5 +1,6 @@
 package com.wirebarly.account.model;
 
+import com.wirebarly.account.policy.AccountPolicy;
 import com.wirebarly.common.model.Money;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.DomainException;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -70,16 +72,49 @@ public class Account {
             throw new DomainException(AccountErrorInfo.CLOSED);
         }
 
-        this.balance = new Money(this.balance.getValue() + amount);
+        this.balance = this.balance.plus(amount);
         this.updatedAt = now;
 
         return AccountTransaction.createNew(
                 accountTransactionId,
                 this.id.getValue(),
                 null,
-                null,
                 AccountTransactionType.DEPOSIT.name(),
-                AccountTransactionDirection.IN.name(),
+                amount,
+                this.balance.getValue(),
+                now
+        );
+    }
+
+    public AccountTransaction withdraw(Long amount, LocalDateTime now, Long accountTransactionId, Long dalyWithDrawAmount) {
+        if(amount == null) {
+            throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_EXIST);
+        }
+        if(amount <= 0) {
+            throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_POSITIVE);
+        }
+        if(isClosed()) {
+            throw new DomainException(AccountErrorInfo.CLOSED);
+        }
+
+        if(dalyWithDrawAmount != null && dalyWithDrawAmount + amount > AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT) {
+            Long overAmount = dalyWithDrawAmount + amount - AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT;
+            throw new DomainException(AccountErrorInfo.OVER_WITHDRAW_LIMIT, Map.of("overAmount", overAmount));
+        }
+
+        Money moneyAfter = this.balance.minus(amount);
+        if(moneyAfter.getValue() < 0) {
+            throw new DomainException(AccountErrorInfo.LACK_BALANCE);
+        }
+
+        this.balance = moneyAfter;
+        this.updatedAt = now;
+
+        return AccountTransaction.createNew(
+                accountTransactionId,
+                this.id.getValue(),
+                null,
+                AccountTransactionType.WITHDRAW.name(),
                 amount,
                 this.balance.getValue(),
                 now
