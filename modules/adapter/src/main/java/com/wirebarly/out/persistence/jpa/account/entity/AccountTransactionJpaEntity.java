@@ -32,6 +32,9 @@ public class AccountTransactionJpaEntity {
     private String type;
 
     @Column(nullable = false)
+    private String transferType;
+
+    @Column(nullable = false)
     private Long amount;
 
     @Column(nullable = false)
@@ -41,11 +44,12 @@ public class AccountTransactionJpaEntity {
     private LocalDateTime transactedAt;
 
     @Builder
-    public AccountTransactionJpaEntity(Long accountTransactionId, Long accountId, Long transferId, String type, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
+    public AccountTransactionJpaEntity(Long accountTransactionId, Long accountId, Long transferId, String type, String transferType, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
         this.accountTransactionId = accountTransactionId;
         this.accountId = accountId;
         this.transferId = transferId;
         this.type = type;
+        this.transferType = transferType;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
         this.transactedAt = transactedAt;
@@ -59,6 +63,7 @@ public class AccountTransactionJpaEntity {
                 .accountId(accountTransaction.getAccountId().getValue())
                 .transferId(transferId != null ? transferId.getValue() : null)
                 .type(accountTransaction.getType().name())
+                .transferType(accountTransaction.getTransferType().name())
                 .amount(accountTransaction.getAmount().getValue())
                 .balanceAfter(accountTransaction.getBalanceAfter().getValue())
                 .transactedAt(accountTransaction.getTransactedAt())

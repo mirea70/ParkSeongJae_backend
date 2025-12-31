@@ -60,6 +60,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount1)
                 .balanceAfter(5000L)
                 .transactedAt(
@@ -74,6 +75,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount2)
                 .balanceAfter(2000L)
                 .transactedAt(
@@ -104,6 +106,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount1)
                 .balanceAfter(5000L)
                 .transactedAt(
@@ -118,6 +121,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount2)
                 .balanceAfter(2000L)
                 .transactedAt(
@@ -148,6 +152,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount1)
                 .balanceAfter(5000L)
                 .transactedAt(
@@ -164,6 +169,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .accountId(accountId)
                 .transferId(null)
                 .type("WITHDRAW")
+                .transferType("NONE")
                 .amount(amount2)
                 .balanceAfter(2000L)
                 .transactedAt(

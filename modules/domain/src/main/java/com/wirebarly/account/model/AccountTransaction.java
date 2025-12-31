@@ -15,16 +15,18 @@ public class AccountTransaction {
     private final AccountId accountId;
     private final TransferId transferId;
     private final AccountTransactionType type;
+    private final AccountTransactionTransferType transferType;
     private final Money amount;
     private final Money balanceAfter;
     private final LocalDateTime transactedAt;
 
-    static AccountTransaction createNew(Long accountTransactionId, Long accountId, Long transferId, String type, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
+    static AccountTransaction createNew(Long accountTransactionId, Long accountId, Long transferId, String type, String transferType, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
         return new AccountTransaction(
                 new AccountTransactionId(accountTransactionId),
                 new AccountId(accountId),
                 transferId != null ? new TransferId(transferId) : null,
-                AccountTransactionType.valueOf(type),
+                AccountTransactionType.from(type),
+                AccountTransactionTransferType.from(transferType),
                 new Money(amount),
                 new Money(balanceAfter),
                 transactedAt

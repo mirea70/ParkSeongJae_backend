@@ -80,6 +80,7 @@ public class Account {
                 this.id.getValue(),
                 null,
                 AccountTransactionType.DEPOSIT.name(),
+                AccountTransactionTransferType.NONE.name(),
                 amount,
                 this.balance.getValue(),
                 now
@@ -115,6 +116,7 @@ public class Account {
                 this.id.getValue(),
                 null,
                 AccountTransactionType.WITHDRAW.name(),
+                AccountTransactionTransferType.NONE.name(),
                 amount,
                 this.balance.getValue(),
                 now

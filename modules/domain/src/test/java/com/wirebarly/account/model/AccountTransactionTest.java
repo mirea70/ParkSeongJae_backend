@@ -23,6 +23,7 @@ class AccountTransactionTest {
                 accountId,
                 transferId,
                 "WITHDRAW",
+                "TRANSFER",
                 1000L,
                 9000L,
                 LocalDateTime.now()
@@ -33,21 +34,24 @@ class AccountTransactionTest {
         assertThat(accountTransaction.getAccountId().getValue()).isEqualTo(accountId);
         assertThat(accountTransaction.getTransferId()).isNotNull();
         assertThat(accountTransaction.getType()).isEqualTo(AccountTransactionType.WITHDRAW);
+        assertThat(accountTransaction.getTransferType()).isEqualTo(AccountTransactionTransferType.TRANSFER);
     }
 
     @Test
-    @DisplayName("이체가 아닌 거래는 이체 시스템 ID가 null이다.")
+    @DisplayName("이체가 아닌 거래는 이체 시스템 ID가 null이고, 송금 타입이 NONE이다.")
     void createNew_withoutTransfer() {
         AccountTransaction accountTransaction = AccountTransaction.createNew(
                 1L,
                 100L,
                 null,
                 "DEPOSIT",
+                "NONE",
                 1000L,
                 5000L,
                 LocalDateTime.now()
         );
 
         assertThat(accountTransaction.getTransferId()).isNull();
+        assertThat(accountTransaction.getTransferType()).isEqualTo(AccountTransactionTransferType.NONE);
     }
 }
