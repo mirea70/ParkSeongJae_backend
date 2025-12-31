@@ -26,10 +26,10 @@ public enum AccountErrorInfo implements ErrorInfo {
     NUMBER_NOT_ALL_ZERO(ErrorCategory.INVALID_VALUE, "ACCOUNT_NUMBER_NOT_ALL_ZERO", "계좌번호의 값이 모두 0일 경우는 불가능합니다."),
 
     // Balance
-    BALANCE_NOT_EXIST(ErrorCategory.INVALID_VALUE, "BALANCE_NOT_EXIST", "계좌의 현재잔액 값이 비어있을 수 없습니다."),
-    BALANCE_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "BALANCE_NOT_POSITIVE", "계좌의 현재잔액 값은 0 또는 양의 정수여야 합니다."),
     DEPOSIT_NOT_EXIST(ErrorCategory.INVALID_VALUE, "DEPOSIT_NOT_EXIST", "계좌에 입금할 값이 비어있을 수 없습니다."),
     DEPOSIT_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "DEPOSIT_NOT_POSITIVE", "계좌에 입금할 값은 양의 정수여야 합니다."),
+    WITHDRAW_NOT_EXIST(ErrorCategory.INVALID_VALUE, "WITHDRAW_NOT_EXIST", "계좌에 출금할 값이 비어있을 수 없습니다."),
+    WITHDRAW_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "WITHDRAW_NOT_POSITIVE", "계좌에 출금할 값은 양의 정수여야 합니다."),
 
     // AccountStatus
     INVALID_STATUS(ErrorCategory.INVALID_VALUE, "INVALID_ACCOUNT_STATUS", "유효하지 않은 계좌 상태입니다.");
