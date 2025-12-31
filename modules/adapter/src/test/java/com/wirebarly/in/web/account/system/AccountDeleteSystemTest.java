@@ -24,7 +24,7 @@ public class AccountDeleteSystemTest extends AccountSystemTestSupport {
         LocalDateTime now = LocalDateTime.now();
 
         customerJpaRepository.save(
-                new CustomerJpaEntity(customerId, "Smith")
+                new CustomerJpaEntity(customerId, "Smith", now, now, null)
         );
 
         AccountJpaEntity accountJpaEntity = AccountJpaEntity.builder()
@@ -62,7 +62,7 @@ public class AccountDeleteSystemTest extends AccountSystemTestSupport {
         LocalDateTime now = LocalDateTime.now();
 
         customerJpaRepository.save(
-                new CustomerJpaEntity(customerId, "Smith")
+                new CustomerJpaEntity(customerId, "Smith", now, now, null)
         );
 
         AccountJpaEntity accountJpaEntity = AccountJpaEntity.builder()

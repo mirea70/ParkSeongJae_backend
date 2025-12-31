@@ -1,4 +1,4 @@
-package com.wirebarly.account.model;
+package com.wirebarly.common.model;
 
 import com.wirebarly.error.exception.DomainException;
 import com.wirebarly.error.info.AccountErrorInfo;
@@ -8,10 +8,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-public class Balance {
+public class Money {
     private long value;
 
-    Balance(Long input) {
+    public Money(Long input) {
         validate(input);
         this.value = input;
     }
@@ -21,9 +21,5 @@ public class Balance {
             throw new DomainException(AccountErrorInfo.BALANCE_NOT_EXIST);
         if(input < 0)
             throw new DomainException(AccountErrorInfo.BALANCE_NOT_POSITIVE);
-    }
-
-    static Balance init() {
-        return new Balance(0);
     }
 }

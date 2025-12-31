@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AccountErrorInfo implements ErrorInfo {
+
     // Account
     NOT_FOUND(ErrorCategory.NOT_FOUND, "ACCOUNT_NOT_FOUND", "계좌를 찾을 수 없습니다."),
+    CLOSED(ErrorCategory.INVALID_VALUE, "ACCOUNT_CLOSED", "해지된 계좌에는 요청이 불가능합니다."),
 
     // AccountId
     ID_NOT_EXIST(ErrorCategory.INVALID_VALUE, "ACCOUNT_ID_NOT_EXIST", "계좌의 시스템ID 값이 비어있을 수 없습니다."),
@@ -16,7 +18,6 @@ public enum AccountErrorInfo implements ErrorInfo {
 
     // BankCode
     INVALID_BANK_CODE(ErrorCategory.INVALID_VALUE, "INVALID_BANK_CODE", "유효하지 않은 은행코드입니다."),
-    BANK_CODE_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "BANK_CODE_NOT_POSITIVE", "은행코드 값은 양의 정수여야 합니다."),
 
     // AccountNumber
     NUMBER_NOT_EXIST(ErrorCategory.INVALID_VALUE, "ACCOUNT_NUMBER_NOT_EXIST", "계좌번호의 값이 비어있을 수 없습니다."),
@@ -26,7 +27,12 @@ public enum AccountErrorInfo implements ErrorInfo {
 
     // Balance
     BALANCE_NOT_EXIST(ErrorCategory.INVALID_VALUE, "BALANCE_NOT_EXIST", "계좌의 현재잔액 값이 비어있을 수 없습니다."),
-    BALANCE_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "BALANCE_NOT_POSITIVE", "계좌의 현재잔액 값은 0 또는 양의 정수여야 합니다.");
+    BALANCE_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "BALANCE_NOT_POSITIVE", "계좌의 현재잔액 값은 0 또는 양의 정수여야 합니다."),
+    DEPOSIT_NOT_EXIST(ErrorCategory.INVALID_VALUE, "DEPOSIT_NOT_EXIST", "계좌에 입금할 값이 비어있을 수 없습니다."),
+    DEPOSIT_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "DEPOSIT_NOT_POSITIVE", "계좌에 입금할 값은 양의 정수여야 합니다."),
+
+    // AccountStatus
+    INVALID_STATUS(ErrorCategory.INVALID_VALUE, "INVALID_ACCOUNT_STATUS", "유효하지 않은 계좌 상태입니다.");
 
     private final ErrorCategory category;
     private final String code;

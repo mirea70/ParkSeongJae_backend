@@ -1,6 +1,5 @@
 package com.wirebarly.out.persistence.jpa.customer.entity;
 
-import com.wirebarly.out.persistence.jpa.common.BaseJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "customer")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CustomerJpaEntity extends BaseJpaEntity {
+public class CustomerJpaEntity {
 
     @Id
     private Long customerId;
@@ -24,11 +23,21 @@ public class CustomerJpaEntity extends BaseJpaEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updateAt;
+
+    @Column(nullable = true)
     private LocalDateTime deletedAt;
 
     @Builder
-    public CustomerJpaEntity(Long customerId, String name) {
+    public CustomerJpaEntity(Long customerId, String name, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.customerId = customerId;
         this.name = name;
+        this.createdAt = createdAt;
+        this.updateAt = updatedAt;
+        this.deletedAt = deletedAt;
     }
 }

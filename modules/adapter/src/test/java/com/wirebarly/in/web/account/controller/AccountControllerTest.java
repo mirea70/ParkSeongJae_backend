@@ -3,11 +3,11 @@ package com.wirebarly.in.web.account.controller;
 import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.in.web.ControllerTestSupport;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
+import com.wirebarly.in.web.account.request.AccountDepositRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +43,7 @@ class AccountControllerTest extends ControllerTestSupport {
 
     static Stream<Arguments> accountCreateRequestCases() {
         return Stream.of(
+
                 // customerId 실패케이스
                 Arguments.of(
                         new AccountCreateRequest(
@@ -69,6 +70,7 @@ class AccountControllerTest extends ControllerTestSupport {
                         "고객 System ID 값은 양의 정수여야합니다."
                 ),
 
+
                 // bankCode 실패케이스
                 Arguments.of(
                         new AccountCreateRequest(
@@ -94,6 +96,7 @@ class AccountControllerTest extends ControllerTestSupport {
                         ),
                         "은행코드는 값이 존재해야합니다."
                 ),
+
 
                 // accountNumber 실패케이스
                 Arguments.of(
@@ -139,14 +142,55 @@ class AccountControllerTest extends ControllerTestSupport {
         );
     }
 
-    @DisplayName("삭제 요청 시, 숫자가 아닌 값이 입력되면 실패한다.")
+    @DisplayName("삭제 요청 시, 계좌 ID가 숫자가 아닌 값이 입력되면 실패한다.")
     @Test
-    void deleteAccountWhenNotNumber() throws Exception {
+    void deleteAccountWhenAccountIdNotNumber() throws Exception {
         // given
         String accountId = "abc";
 
         // when
         ResultActions result = mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId));
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("입금 요청 시, 계좌 ID가 숫자가 아닌 값이 입력되면 실패한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"abc"})
+    void depositWhenAccountIdNotNumber(String accountId) throws Exception {
+        // given
+        AccountDepositRequest request = new AccountDepositRequest(3000L);
+
+        // when
+        ResultActions result = mockMvc.perform(
+                        post("/api/v1/accounts/{accountId}/deposit", accountId)
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                );
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("입금 요청 시, 입금금액은 양의 정수여야한다.")
+    @ParameterizedTest
+    @ValueSource(longs = {-1000L, 0})
+    @NullSource
+    void depositAmountCase(Long amount) throws Exception {
+        // given
+        AccountDepositRequest request = new AccountDepositRequest(amount);
+
+        // when
+        ResultActions result = mockMvc.perform(
+                post("/api/v1/accounts/{accountId}/deposit", 1L)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
 
         // then
         result.andDo(print())

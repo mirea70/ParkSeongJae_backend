@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mockStatic;
 
@@ -49,19 +48,6 @@ class BankCodeTest {
 
         // then
         assertThat(result.name()).isEqualTo(expected);
-    }
-
-    @DisplayName("요청 code 값이 양의정수가 아니면 예외를 던진다.")
-    @Test
-    void fromWhenIsNotPositiveNumber() {
-        // given
-        given(MyStringUtils.isPositiveNumber(any()))
-                .willReturn(false);
-
-        // when // then
-        assertThatThrownBy(() -> BankCode.from(anyString()))
-                .isInstanceOf(DomainException.class)
-                .hasMessage("은행코드 값은 양의 정수여야 합니다.");
     }
 
     @DisplayName("매칭되는 은행이 없으면 예외를 던진다.")

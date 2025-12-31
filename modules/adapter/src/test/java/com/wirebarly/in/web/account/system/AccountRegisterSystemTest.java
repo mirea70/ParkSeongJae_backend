@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,8 +23,9 @@ public class AccountRegisterSystemTest extends AccountSystemTestSupport {
     @Test
     void accountRegister() {
         // given
+        LocalDateTime now = LocalDateTime.now();
         customerJpaRepository.save(
-                new CustomerJpaEntity(1L, "Smith")
+                new CustomerJpaEntity(1L, "Smith", now, now ,null)
         );
 
         Long customerId = 1L;

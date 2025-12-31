@@ -2,8 +2,7 @@ package com.wirebarly.out.persistence.jpa.account.entity;
 
 import com.wirebarly.account.model.Account;
 import com.wirebarly.error.exception.BusinessException;
-import com.wirebarly.error.info.CommonErrorInfo;
-import com.wirebarly.out.persistence.jpa.common.BaseJpaEntity;
+import com.wirebarly.error.info.SystemErrorInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,7 +19,7 @@ import java.util.Map;
 @Table(name = "account")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AccountJpaEntity extends BaseJpaEntity {
+public class AccountJpaEntity {
 
     @Id
     private Long accountId;
@@ -40,6 +39,13 @@ public class AccountJpaEntity extends BaseJpaEntity {
     @Column(nullable = false)
     private Long balance;
 
+    @Column(nullable = false)
+    protected LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    protected LocalDateTime updatedAt;
+
+    @Column(nullable = true)
     private LocalDateTime closedAt;
 
     @Builder
@@ -85,7 +91,7 @@ public class AccountJpaEntity extends BaseJpaEntity {
 
     public void updateFrom(Account domain) {
         if (domain == null || domain.getId() == null) {
-            throw new BusinessException(CommonErrorInfo.INTERNAL_SERVER_ERROR, Map.of("cause", "도메인 객체가 유실되는 문제가 발생했습니다."));
+            throw new BusinessException(SystemErrorInfo.INTERNAL_SERVER_ERROR, Map.of("cause", "도메인 객체가 유실되는 문제가 발생했습니다."));
         }
 
         this.bankCode = domain.getBankInfo().getBankCode().getCode();

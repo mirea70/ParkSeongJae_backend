@@ -3,6 +3,7 @@ package com.wirebarly.in.web.account.controller;
 import com.wirebarly.in.account.usecase.AccountUseCase;
 import com.wirebarly.in.web.WebAdapter;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
+import com.wirebarly.in.web.account.request.AccountDepositRequest;
 import com.wirebarly.in.web.account.response.AccountResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,13 @@ public class AccountController {
     @DeleteMapping("/{accountId}")
     public ResponseEntity<Void> deleteAccount(@PathVariable("accountId") Long accountId) {
         accountUseCase.remove(accountId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{accountId}/deposit")
+    public ResponseEntity<Void> deposit(@PathVariable("accountId") Long accountId,
+                                        @Valid @RequestBody AccountDepositRequest request) {
+        accountUseCase.deposit(accountId, request.toCommand());
         return ResponseEntity.ok().build();
     }
 }

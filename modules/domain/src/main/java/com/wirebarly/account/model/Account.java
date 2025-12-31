@@ -1,6 +1,9 @@
 package com.wirebarly.account.model;
 
+import com.wirebarly.common.model.Money;
 import com.wirebarly.customer.model.CustomerId;
+import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +18,7 @@ public class Account {
     private final BankInfo bankInfo;
 
     private AccountStatus status;
-    private Balance balance;
+    private Money balance;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -27,7 +30,7 @@ public class Account {
                 new CustomerId(customerIdInput),
                 BankInfo.of(bankCode, accountNumber),
                 AccountStatus.ACTIVE,
-                Balance.init(),
+                new Money(0L),
                 now,
                 now,
                 null
@@ -40,7 +43,7 @@ public class Account {
                 new CustomerId(customerId),
                 BankInfo.of(bankCode, accountNumber),
                 AccountStatus.valueOf(status),
-                new Balance(balance),
+                new Money(balance),
                 createdAt,
                 updatedAt,
                 closedAt
@@ -50,5 +53,36 @@ public class Account {
     public void close(LocalDateTime now) {
         this.status = AccountStatus.CLOSED;
         this.closedAt = now;
+    }
+
+    private boolean isClosed() {
+        return this.status == AccountStatus.CLOSED || this.closedAt != null;
+    }
+
+    public AccountTransaction deposit(Long amount, LocalDateTime now, Long accountTransactionId) {
+        if(amount == null) {
+            throw new DomainException(AccountErrorInfo.DEPOSIT_NOT_EXIST);
+        }
+        if(amount <= 0) {
+            throw new DomainException(AccountErrorInfo.DEPOSIT_NOT_POSITIVE);
+        }
+        if(isClosed()) {
+            throw new DomainException(AccountErrorInfo.CLOSED);
+        }
+
+        this.balance = new Money(this.balance.getValue() + amount);
+        this.updatedAt = now;
+
+        return AccountTransaction.createNew(
+                accountTransactionId,
+                this.id.getValue(),
+                null,
+                null,
+                AccountTransactionType.DEPOSIT.name(),
+                AccountTransactionDirection.IN.name(),
+                amount,
+                this.balance.getValue(),
+                now
+        );
     }
 }

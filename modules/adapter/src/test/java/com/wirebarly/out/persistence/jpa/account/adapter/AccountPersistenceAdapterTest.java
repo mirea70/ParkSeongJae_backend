@@ -38,7 +38,7 @@ class AccountPersistenceAdapterTest {
 
     @DisplayName("계좌 데이터 저장 시, 저장했던 정보가 잘 조회된다.")
     @Test
-    void save() {
+    void insert() {
         // given
         Long accountId = 1L;
         LocalDateTime now = LocalDateTime.now();
@@ -138,11 +138,6 @@ class AccountPersistenceAdapterTest {
 
         // then
         assertThat(result).isEmpty();
-//
-//        Account account = result.get();
-//        assertThat(account.getId().getValue()).isEqualTo(accountId.getValue());
-//        assertThat(account.getBankInfo().getBankCode().getCode()).isEqualTo(bankCode);
-//        assertThat(account.getBankInfo().getAccountNumber().getValue()).isEqualTo(accountNumber);
     }
 
     @DisplayName("계좌 데이터의 업데이트 내용이 배제해야할 컬럼 제외하고, 잘 반영된다.")

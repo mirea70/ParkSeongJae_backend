@@ -2,9 +2,12 @@ package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
 import com.wirebarly.error.info.AccountErrorInfo;
-import com.wirebarly.utils.MyStringUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -20,17 +23,22 @@ public enum BankCode {
     private final String code;
     private final String description;
 
-    static BankCode from(String code) {
-        if (!MyStringUtils.isPositiveNumber(code)) {
-            throw new DomainException(AccountErrorInfo.BANK_CODE_NOT_POSITIVE);
+    private static final Map<String, BankCode> valueMap =
+            Arrays.stream(values())
+                    .collect(Collectors.toMap(
+                            bankCode -> bankCode.code,
+                            bankCode -> bankCode
+                    ));
+    static BankCode from(String input) {
+        if (input == null) {
+            throw new DomainException(AccountErrorInfo.INVALID_BANK_CODE);
         }
 
-        for (BankCode bankCode : BankCode.values()) {
-            if (bankCode.code.equals(code)) {
-                return bankCode;
-            }
+        BankCode result = valueMap.get(input.toLowerCase());
+        if (result == null) {
+            throw new DomainException(AccountErrorInfo.INVALID_BANK_CODE);
         }
 
-        throw new DomainException(AccountErrorInfo.INVALID_BANK_CODE);
+        return result;
     }
 }

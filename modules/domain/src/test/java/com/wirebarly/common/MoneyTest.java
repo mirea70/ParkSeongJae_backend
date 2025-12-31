@@ -1,5 +1,6 @@
-package com.wirebarly.account.model;
+package com.wirebarly.common;
 
+import com.wirebarly.common.model.Money;
 import com.wirebarly.error.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
-class BalanceTest {
+class MoneyTest {
 
     @DisplayName("현재잔액의 값 생성 시, 존재하고 0이상의 정수이면 잘 생성된다.")
     @Test
@@ -21,7 +22,7 @@ class BalanceTest {
         Long input = 2000L;
 
         // when
-        Balance result = new Balance(input);
+        Money result = new Money(input);
 
         // then
         long expected = 2000L;
@@ -37,7 +38,7 @@ class BalanceTest {
     }, nullValues = {"null"})
     void factoryWhenInvalid(Long input, String errorMessage) {
         // when // then
-        assertThatThrownBy(() -> new Balance(input))
+        assertThatThrownBy(() -> new Money(input))
                 .isInstanceOf(DomainException.class)
                 .hasMessage(errorMessage);
     }

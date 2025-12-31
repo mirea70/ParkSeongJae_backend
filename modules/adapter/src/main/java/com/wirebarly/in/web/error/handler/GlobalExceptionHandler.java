@@ -2,7 +2,7 @@ package com.wirebarly.in.web.error.handler;
 
 import com.wirebarly.error.exception.BusinessException;
 import com.wirebarly.error.exception.DomainException;
-import com.wirebarly.error.info.CommonErrorInfo;
+import com.wirebarly.error.info.SystemErrorInfo;
 import com.wirebarly.error.info.ErrorInfo;
 import com.wirebarly.in.web.error.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception e, HttpServletRequest request) {
-        ErrorInfo errorInfo = CommonErrorInfo.INTERNAL_SERVER_ERROR;
+        ErrorInfo errorInfo = SystemErrorInfo.INTERNAL_SERVER_ERROR;
         return ResponseEntity
                 .status(HttpStatusErrorMapper.map(errorInfo.getCategory()))
                 .body(
