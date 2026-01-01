@@ -35,7 +35,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
                 LocalDateTime.now()));
         Long accountTransactionId = 1L;
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
         given(idGenerator.nextId()).willReturn(accountTransactionId);
 
@@ -43,7 +43,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
         accountService.deposit(accountId, new AccountDepositCommand(1000L));
 
         // then
-        verify(accountOutPort, times(1)).loadOne(any(AccountId.class));
+        verify(accountOutPort, times(1)).loadOneForUpdate(any(AccountId.class));
         verify(account).deposit(any(Long.class), any(LocalDateTime.class), any(Long.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
         verify(accountOutPort, times(1)).update(account);
@@ -54,7 +54,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
     @Test
     void depositFailWhenNoAccount() {
         // given
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.empty());
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.empty());
 
         // when // then
         assertThatThrownBy(() -> accountService.deposit(1L, new AccountDepositCommand(1000L)))
@@ -75,7 +75,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
                 LocalDateTime.now()
         );
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then

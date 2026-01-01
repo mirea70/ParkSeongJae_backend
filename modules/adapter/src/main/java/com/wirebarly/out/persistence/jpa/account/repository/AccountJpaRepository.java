@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AccountJpaRepository extends JpaRepository<AccountJpaEntity, Long> {
+public interface AccountJpaRepository extends JpaRepository<AccountJpaEntity, Long>, AccountJpaQueryRepository {
 
     /**
      *     SELECT *

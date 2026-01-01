@@ -30,14 +30,14 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
                 "1231231231",
                 LocalDateTime.now()));
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
 
         // when
         accountService.remove(accountId);
 
         // then
-        verify(accountOutPort, times(1)).loadOne(any(AccountId.class));
+        verify(accountOutPort, times(1)).loadOneForUpdate(any(AccountId.class));
         verify(account).close(any(LocalDateTime.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
         verify(accountOutPort, times(1)).update(account);
@@ -47,7 +47,7 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
     @Test
     void removeWhenNoAccount() {
         // given
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.empty());
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.empty());
 
         // when // then
         assertThatThrownBy(() -> accountService.remove(1L))
@@ -67,7 +67,7 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
                 LocalDateTime.now()
         );
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then

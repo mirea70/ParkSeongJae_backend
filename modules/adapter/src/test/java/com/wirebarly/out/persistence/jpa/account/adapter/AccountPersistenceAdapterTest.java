@@ -50,7 +50,7 @@ class AccountPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
 
     @DisplayName("계좌 데이터가 존재하면 도메인 데이터로 변환해 반환한다.")
     @Test
-    void loadOne() {
+    void loadOneForUpdate() {
         // given
         AccountId accountId = new AccountId(1L);
         Long customerId = 2L;
@@ -75,7 +75,7 @@ class AccountPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
         accountJpaRepository.save(accountJpaEntity);
 
         // when
-        Optional<Account> result = accountPersistenceAdapter.loadOne(accountId);
+        Optional<Account> result = accountPersistenceAdapter.loadOneForUpdate(accountId);
 
         // then
         assertThat(result).isPresent();
@@ -93,7 +93,7 @@ class AccountPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
             "CLOSED, null",
             "CLOSED, 2025-03-05T14:32:18.456789",
     }, nullValues = {"null"})
-    void loadOneOnlyNotClosed(String status, LocalDateTime closedAt) {
+    void loadOneForUpdateOnlyNotClosed(String status, LocalDateTime closedAt) {
         // given
         AccountId accountId = new AccountId(1L);
         Long customerId = 2L;
@@ -117,7 +117,7 @@ class AccountPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
         accountJpaRepository.save(accountJpaEntity);
 
         // when
-        Optional<Account> result = accountPersistenceAdapter.loadOne(accountId);
+        Optional<Account> result = accountPersistenceAdapter.loadOneForUpdate(accountId);
 
         // then
         assertThat(result).isEmpty();

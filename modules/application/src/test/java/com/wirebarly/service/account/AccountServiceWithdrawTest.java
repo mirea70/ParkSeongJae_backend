@@ -44,7 +44,7 @@ class AccountServiceWithdrawTest extends AccountServiceTestSupport {
         Long accountTransactionId = 1L;
         Long dailyWithdrawAmount = 0L;
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
         given(idGenerator.nextId()).willReturn(accountTransactionId);
         given(accountTransactionOutPort.getDailyWithdrawAmount(any(AccountId.class), any(LocalDate.class))).willReturn(dailyWithdrawAmount);
@@ -53,7 +53,7 @@ class AccountServiceWithdrawTest extends AccountServiceTestSupport {
         accountService.withdraw(accountId, new AccountWithdrawCommand(1000L));
 
         // then
-        verify(accountOutPort, times(1)).loadOne(any(AccountId.class));
+        verify(accountOutPort, times(1)).loadOneForUpdate(any(AccountId.class));
         verify(account).withdraw(any(Long.class), any(LocalDateTime.class), any(Long.class), any(Long.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
         verify(accountOutPort, times(1)).update(account);
@@ -64,7 +64,7 @@ class AccountServiceWithdrawTest extends AccountServiceTestSupport {
     @Test
     void withdrawFailWhenNoAccount() {
         // given
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.empty());
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.empty());
 
         // when // then
         assertThatThrownBy(() -> accountService.withdraw(1L, new AccountWithdrawCommand(1000L)))
@@ -85,7 +85,7 @@ class AccountServiceWithdrawTest extends AccountServiceTestSupport {
                 LocalDateTime.now()
         );
 
-        given(accountOutPort.loadOne(any(AccountId.class))).willReturn(Optional.of(account));
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then
