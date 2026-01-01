@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface AccountOutPort {
     Account insert(Account account);
-//    Optional<Account> loadOne(AccountId id);
     Optional<Loaded<Account>> loadOne(AccountId id);
     Optional<Loaded<Account>> loadOneForUpdate(AccountId id);
     void applyClose(Loaded<Account> loadedAccount);
