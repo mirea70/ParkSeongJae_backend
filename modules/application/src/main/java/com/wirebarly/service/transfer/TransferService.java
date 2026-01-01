@@ -33,8 +33,18 @@ public class TransferService implements TransferUseCase {
 
     @Override
     public void transfer(TransferCreateCommand command) {
-        Loaded<Account> loadedFromAccount = accountService.getValidatedAccountForUpdate(command.fromAccountId());
-        Loaded<Account> loadedToAccount = accountService.getValidatedAccountForUpdate(command.toAccountId());
+        Long fromId = command.fromAccountId();
+        Long toId   = command.toAccountId();
+
+        // 잠금 순서 고정: 작은 ID → 큰 ID
+        Long firstId  = Math.min(fromId, toId);
+        Long secondId = Math.max(fromId, toId);
+
+        Loaded<Account> first  = accountService.getValidatedAccountForUpdate(firstId);
+        Loaded<Account> second = accountService.getValidatedAccountForUpdate(secondId);
+
+        Loaded<Account> loadedFromAccount = fromId.equals(first.domain().getId().getValue()) ? first : second;
+        Loaded<Account> loadedToAccount   = loadedFromAccount == first ? second : first;
         Account fromAccount = loadedFromAccount.domain();
         Account toAccount = loadedToAccount.domain();
 
