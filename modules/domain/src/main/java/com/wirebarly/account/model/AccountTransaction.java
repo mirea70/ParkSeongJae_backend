@@ -20,9 +20,9 @@ public class AccountTransaction {
     private final Money balanceAfter;
     private final LocalDateTime transactedAt;
 
-    static AccountTransaction createNew(Long accountTransactionId, Long accountId, Long transferId, String type, String transferType, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
+    static AccountTransaction createNew(Long id, Long accountId, Long transferId, String type, String transferType, Long amount, Long balanceAfter, LocalDateTime transactedAt) {
         return new AccountTransaction(
-                new AccountTransactionId(accountTransactionId),
+                new AccountTransactionId(id),
                 new AccountId(accountId),
                 transferId != null ? new TransferId(transferId) : null,
                 AccountTransactionType.from(type),

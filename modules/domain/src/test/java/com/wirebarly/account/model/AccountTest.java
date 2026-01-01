@@ -207,7 +207,7 @@ class AccountTest {
             assertThat(accountTransaction.getId().getValue()).isEqualTo(accountTransactionId);
         }
 
-        @DisplayName("계좌에 입금할 금액은 양의 정수여야한다.")
+        @DisplayName("계좌에 출금할 금액은 양의 정수여야한다.")
         @ParameterizedTest
         @MethodSource("withdrawAmountCases")
         void withdrawFailByAmount(Long amount, AccountErrorInfo errorInfo) {
@@ -275,12 +275,16 @@ class AccountTest {
                 // given
                 LocalDateTime now = LocalDateTime.now();
 
-                Account account = Account.createNew(
+                Account account = Account.fromOutside(
                         2L,
                         2L,
                         "039",
                         "123123123123123",
-                        now
+                        "ACTIVE",
+                        20000L,
+                        now,
+                        now,
+                        null
                 );
 
                 Long amount = 10000L;

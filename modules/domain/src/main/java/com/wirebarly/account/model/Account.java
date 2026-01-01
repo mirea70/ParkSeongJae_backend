@@ -26,10 +26,10 @@ public class Account {
     private LocalDateTime updatedAt;
     private LocalDateTime closedAt;
 
-    public static Account createNew(Long idInput, Long customerIdInput, String bankCode, String accountNumber, LocalDateTime now) {
+    public static Account createNew(Long id, Long customerId, String bankCode, String accountNumber, LocalDateTime now) {
         return new Account(
-                new AccountId(idInput),
-                new CustomerId(customerIdInput),
+                new AccountId(id),
+                new CustomerId(customerId),
                 BankInfo.of(bankCode, accountNumber),
                 AccountStatus.ACTIVE,
                 new Money(0L),
@@ -62,6 +62,7 @@ public class Account {
     }
 
     public AccountTransaction deposit(Long amount, LocalDateTime now, Long accountTransactionId) {
+
         if(amount == null) {
             throw new DomainException(AccountErrorInfo.DEPOSIT_NOT_EXIST);
         }
@@ -72,7 +73,9 @@ public class Account {
             throw new DomainException(AccountErrorInfo.CLOSED);
         }
 
-        this.balance = this.balance.plus(amount);
+        Money depositAmount = new Money(amount);
+
+        this.balance = this.balance.plus(depositAmount);
         this.updatedAt = now;
 
         return AccountTransaction.createNew(
@@ -98,17 +101,26 @@ public class Account {
             throw new DomainException(AccountErrorInfo.CLOSED);
         }
 
-        if(dalyWithDrawAmount != null && dalyWithDrawAmount + amount > AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT) {
-            Long overAmount = dalyWithDrawAmount + amount - AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT;
-            throw new DomainException(AccountErrorInfo.OVER_WITHDRAW_LIMIT, Map.of("overAmount", overAmount));
-        }
+        Money withdrawAmount = new Money(amount);
+        Money dailyUsed = new Money(dalyWithDrawAmount);
+        Money limit = new Money(AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT);
 
-        Money moneyAfter = this.balance.minus(amount);
-        if(moneyAfter.getValue() < 0) {
+        if(withdrawAmount.isGreaterThan(this.balance)) {
             throw new DomainException(AccountErrorInfo.LACK_BALANCE);
         }
+        Money dailyUsing = dailyUsed.plus(withdrawAmount);
 
-        this.balance = moneyAfter;
+        if(dailyUsing.isGreaterThan(limit)) {
+            Money overAmount = dailyUsing.minus(limit);
+            throw new DomainException(
+                    AccountErrorInfo.OVER_WITHDRAW_LIMIT,
+                    Map.of(
+                            "limit", AccountPolicy.ACCOUNT_WITHDRAW_DAILY_LIMIT,
+                            "overAmount", overAmount)
+            );
+        }
+
+        this.balance = this.balance.minus(withdrawAmount);
         this.updatedAt = now;
 
         return AccountTransaction.createNew(
