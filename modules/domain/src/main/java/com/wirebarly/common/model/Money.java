@@ -16,14 +16,16 @@ public class Money {
         this.value = input;
     }
 
-    public Money plus(Long input) {
-        validate(input);
-        return new Money(this.value + input);
+    public Money plus(Money input) {
+        return new Money(this.value + input.value);
     }
 
-    public Money minus(Long input) {
-        validate(input);
-        return new Money(this.value - input);
+    public Money minus(Money input) {
+        return new Money(this.value - input.value);
+    }
+
+    public boolean isGreaterThan(Money other) {
+        return this.value > other.value;
     }
 
     static void validate(Long input) {

@@ -49,9 +49,10 @@ class MoneyTest {
         Long beforeValue = 1000L;
         Money before = new Money(beforeValue);
         Long amount = 2000L;
+        Money amountMoney = new Money(amount);
 
         // when
-        Money after = before.plus(amount);
+        Money after = before.plus(amountMoney);
 
         // then
         assertThat(after.getValue()).isEqualTo(beforeValue + amount);
@@ -64,11 +65,32 @@ class MoneyTest {
         Long beforeValue = 1000L;
         Money before = new Money(beforeValue);
         Long amount = 2000L;
+        Money amountMoney = new Money(amount);
 
         // when
-        Money after = before.minus(amount);
+        Money after = before.minus(amountMoney);
 
         // then
         assertThat(after.getValue()).isEqualTo(beforeValue - amount);
+    }
+
+    @DisplayName("대상보다 크면 true, 아니면 false를 반환한다.")
+    @Test
+    void isGreaterThan() {
+        // given
+        Money money = new Money(2000L);
+        Money target1 = new Money(1000L);
+        Money target2 = new Money(2000L);
+        Money target3 = new Money(3000L);
+
+        // when
+        boolean result1 = money.isGreaterThan(target1);
+        boolean result2 = money.isGreaterThan(target2);
+        boolean result3 = money.isGreaterThan(target3);
+
+        // then
+        assertThat(result1).isTrue();
+        assertThat(result2).isFalse();
+        assertThat(result3).isFalse();
     }
 }
