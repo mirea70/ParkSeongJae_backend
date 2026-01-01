@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -23,6 +24,13 @@ public class AccountTransactionPersistenceAdapter implements AccountTransactionO
     @Override
     public void insert(AccountTransaction accountTransaction) {
         entityManager.persist(AccountTransactionJpaEntity.from(accountTransaction));
+    }
+
+    @Override
+    public void insert(List<AccountTransaction> accountTransactions) {
+        for(AccountTransaction accountTransaction : accountTransactions){
+            insert(accountTransaction);
+        }
     }
 
     @Override

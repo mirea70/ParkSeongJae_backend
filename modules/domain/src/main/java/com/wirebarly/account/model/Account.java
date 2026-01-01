@@ -62,6 +62,10 @@ public class Account {
     }
 
     public AccountTransaction deposit(Long amount, LocalDateTime now, Long accountTransactionId) {
+        return this.deposit(amount, now, accountTransactionId, null, null);
+    }
+
+    public AccountTransaction deposit(Long amount, LocalDateTime now, Long accountTransactionId, Long transferId, String transferType) {
 
         if(amount == null) {
             throw new DomainException(AccountErrorInfo.DEPOSIT_NOT_EXIST);
@@ -81,9 +85,9 @@ public class Account {
         return AccountTransaction.createNew(
                 accountTransactionId,
                 this.id.getValue(),
-                null,
+                transferId,
                 AccountTransactionType.DEPOSIT.name(),
-                AccountTransactionTransferType.NONE.name(),
+                transferType != null ? transferType : AccountTransactionTransferType.NONE.name(),
                 amount,
                 this.balance.getValue(),
                 now
@@ -91,6 +95,10 @@ public class Account {
     }
 
     public AccountTransaction withdraw(Long amount, LocalDateTime now, Long accountTransactionId, Long dalyWithDrawAmount) {
+        return this.withdraw(amount, now, accountTransactionId, dalyWithDrawAmount, null, null);
+    }
+
+    public AccountTransaction withdraw(Long amount, LocalDateTime now, Long accountTransactionId, Long dalyWithDrawAmount, Long transferId, String transferType) {
         if(amount == null) {
             throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_EXIST);
         }
@@ -126,9 +134,9 @@ public class Account {
         return AccountTransaction.createNew(
                 accountTransactionId,
                 this.id.getValue(),
-                null,
+                transferId,
                 AccountTransactionType.WITHDRAW.name(),
-                AccountTransactionTransferType.NONE.name(),
+                transferType != null ? transferType : AccountTransactionTransferType.NONE.name(),
                 amount,
                 this.balance.getValue(),
                 now

@@ -3,13 +3,11 @@ package com.wirebarly.out.persistence.jpa.account.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wirebarly.out.persistence.jpa.account.entity.QAccountTransactionJpaEntity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 
-@Repository
 @RequiredArgsConstructor
-public class AccountTransactionJpaRepositoryImpl implements AccountTransactionJpaQueryRepository {
+public class AccountTransactionJpaQueryRepositoryImpl implements AccountTransactionJpaQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final QAccountTransactionJpaEntity accountTransaction = QAccountTransactionJpaEntity.accountTransactionJpaEntity;
 

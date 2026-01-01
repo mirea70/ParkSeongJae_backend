@@ -9,10 +9,8 @@ import com.wirebarly.error.exception.BusinessException;
 import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.error.info.CustomerErrorInfo;
 import com.wirebarly.in.account.command.AccountWithdrawCommand;
-import com.wirebarly.out.account.AccountTransactionOutPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,9 +22,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 class AccountServiceWithdrawTest extends AccountServiceTestSupport {
-
-    @Mock
-    private AccountTransactionOutPort accountTransactionOutPort;
 
     @DisplayName("계좌에서 출금하면 출금 거래가 생성되고 현재잔액을 그만큼 감소시킨다.")
     @Test

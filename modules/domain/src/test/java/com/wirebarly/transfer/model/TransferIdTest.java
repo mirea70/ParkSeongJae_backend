@@ -1,12 +1,16 @@
 package com.wirebarly.transfer.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.TransferErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,15 +34,29 @@ class TransferIdTest {
 
     @DisplayName("객체 생성 시, 유효하지 않은 값이 들어오면 예외를 던진다.")
     @ParameterizedTest
-    @CsvSource(value = {
-            "null, 이체의 시스템ID 값이 비어있을 수 없습니다.",
-            "0, 이체의 시스템ID 값은 양의 정수여야 합니다.",
-            "-1, 이체의 시스템ID 값은 양의 정수여야 합니다.",
-    }, nullValues = {"null"})
-    void factoryWhenInvalid(Long input, String errorMessage) {
+    @MethodSource("transferIdInvalidCases")
+    void factoryWhenInvalid(Long input, TransferErrorInfo errorInfo) {
         // when // then
         assertThatThrownBy(() -> new TransferId(input))
                 .isInstanceOf(DomainException.class)
-                .hasMessage(errorMessage);
+                .extracting("errorInfo")
+                .isEqualTo(errorInfo);
+    }
+
+    private static Stream<Arguments> transferIdInvalidCases() {
+        return Stream.of(
+                Arguments.of(
+                        null,
+                        TransferErrorInfo.ID_NOT_EXIST
+                ),
+                Arguments.of(
+                        0L,
+                        TransferErrorInfo.ID_NOT_POSITIVE
+                ),
+                Arguments.of(
+                        -1L,
+                        TransferErrorInfo.ID_NOT_POSITIVE
+                )
+        );
     }
 }

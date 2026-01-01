@@ -1,22 +1,25 @@
 package com.wirebarly.in.web.account.controller;
 
 import com.wirebarly.in.account.usecase.AccountUseCase;
+import com.wirebarly.in.account.usecase.TransferUseCase;
 import com.wirebarly.in.web.ControllerTestSupport;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
 import com.wirebarly.in.web.account.request.AccountWithdrawRequest;
+import com.wirebarly.in.web.account.request.TransferCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,16 +29,15 @@ class AccountControllerTest extends ControllerTestSupport {
     @MockitoBean
     private AccountUseCase accountUseCase;
 
+    @MockitoBean
+    private TransferUseCase transferUseCase;
+
     @DisplayName("계좌 등록 실패케이스")
     @ParameterizedTest
     @MethodSource("accountCreateRequestCases")
     void registerAccountWhenFail(AccountCreateRequest request, String errorMessage) throws Exception {
         // when // then
-        mockMvc.perform(
-                        post("/api/v1/accounts/new")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postRequest("/api/v1/accounts/new", request)
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"))
@@ -150,7 +152,9 @@ class AccountControllerTest extends ControllerTestSupport {
         String accountId = "abc";
 
         // when
-        ResultActions result = mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId));
+        ResultActions result = mockMvc.perform(
+                delete("/api/v1/accounts/{accountId}", accountId)
+        );
 
         // then
         result.andDo(print())
@@ -166,11 +170,7 @@ class AccountControllerTest extends ControllerTestSupport {
         AccountDepositRequest request = new AccountDepositRequest(3000L);
 
         // when
-        ResultActions result = mockMvc.perform(
-                        post("/api/v1/accounts/{accountId}/deposit", accountId)
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/deposit", accountId, request);
 
         // then
         result.andDo(print())
@@ -187,11 +187,7 @@ class AccountControllerTest extends ControllerTestSupport {
         AccountDepositRequest request = new AccountDepositRequest(amount);
 
         // when
-        ResultActions result = mockMvc.perform(
-                post("/api/v1/accounts/{accountId}/deposit", 1L)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/deposit", 1L, request);
 
         // then
         result.andDo(print())
@@ -207,11 +203,7 @@ class AccountControllerTest extends ControllerTestSupport {
         AccountWithdrawRequest request = new AccountWithdrawRequest(3000L);
 
         // when
-        ResultActions result = mockMvc.perform(
-                post("/api/v1/accounts/{accountId}/withdraw", accountId)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/withdraw", accountId, request);
 
         // then
         result.andDo(print())
@@ -228,11 +220,57 @@ class AccountControllerTest extends ControllerTestSupport {
         AccountWithdrawRequest request = new AccountWithdrawRequest(amount);
 
         // when
-        ResultActions result = mockMvc.perform(
-                post("/api/v1/accounts/{accountId}/withdraw", 1L)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/withdraw", 1L, request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("송금 요청 시, 계좌 ID가 숫자가 아닌 값이 입력되면 실패한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"abc"})
+    void transferWhenAccountIdNotNumber(String accountId) throws Exception {
+        // given
+        TransferCreateRequest request = new TransferCreateRequest(3L, 5000L);
+
+        // when
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/transfer", accountId, request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("송금 요청 시, 수취자 계좌의 시스템 ID는 양의 정수여야한다.")
+    @ParameterizedTest
+    @ValueSource(longs = {-10L, 0})
+    @NullSource
+    void transferToAccountIdCase(Long toAccountId) throws Exception {
+        // given
+        TransferCreateRequest request = new TransferCreateRequest(toAccountId, 3000L);
+
+        // when
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/transfer", 1L, request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("송금 요청 시, 송금액은 양의 정수여야한다.")
+    @ParameterizedTest
+    @ValueSource(longs = {-1000L, 0})
+    @NullSource
+    void transferAmountCase(Long amount) throws Exception {
+        // given
+        TransferCreateRequest request = new TransferCreateRequest(3L, amount);
+
+        // when
+        ResultActions result = postRequest("/api/v1/accounts/{accountId}/transfer", 1L, request);
 
         // then
         result.andDo(print())

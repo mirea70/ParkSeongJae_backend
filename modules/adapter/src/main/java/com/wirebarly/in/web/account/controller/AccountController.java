@@ -1,10 +1,12 @@
 package com.wirebarly.in.web.account.controller;
 
 import com.wirebarly.in.account.usecase.AccountUseCase;
+import com.wirebarly.in.account.usecase.TransferUseCase;
 import com.wirebarly.in.web.WebAdapter;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
 import com.wirebarly.in.web.account.request.AccountWithdrawRequest;
+import com.wirebarly.in.web.account.request.TransferCreateRequest;
 import com.wirebarly.in.web.account.response.AccountResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountUseCase accountUseCase;
+    private final TransferUseCase transferUseCase;
 
     @PostMapping("/new")
     public ResponseEntity<AccountResponse> registerAccount(@Valid @RequestBody AccountCreateRequest request) {
@@ -42,6 +45,13 @@ public class AccountController {
     public ResponseEntity<Void> withdraw(@PathVariable("accountId") Long accountId,
                                         @Valid @RequestBody AccountWithdrawRequest request) {
         accountUseCase.withdraw(accountId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{accountId}/transfer")
+    public ResponseEntity<Void> transfer(@PathVariable("accountId") Long accountId,
+                                         @Valid @RequestBody TransferCreateRequest request) {
+        transferUseCase.transfer(request.toCommand(accountId));
         return ResponseEntity.ok().build();
     }
 }

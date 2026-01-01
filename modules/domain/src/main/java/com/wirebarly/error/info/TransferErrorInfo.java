@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 public enum TransferErrorInfo implements ErrorInfo {
 
     // TransferId
-    ID_NOT_EXIST(ErrorCategory.INVALID_VALUE, "TransferId_NOT_EXIST", "이체의 시스템ID 값이 비어있을 수 없습니다."),
-    ID_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "TransferId_NOT_POSITIVE", "이체의 시스템ID 값은 양의 정수여야 합니다.");
+    ID_NOT_EXIST(ErrorCategory.INVALID_VALUE, "TransferId_NOT_EXIST", "송금 시스템ID 값이 비어있을 수 없습니다."),
+    ID_NOT_POSITIVE(ErrorCategory.INVALID_VALUE, "TransferId_NOT_POSITIVE", "송금 시스템ID 값은 양의 정수여야 합니다."),
+
+    // Amount
+    OVER_TRANSFER_LIMIT(ErrorCategory.INVALID_VALUE, "OVER_TRANSFER_LIMIT", "송금할 수 있는 일일 한도를 초과하였습니다.");
 
     private final ErrorCategory category;
     private final String code;

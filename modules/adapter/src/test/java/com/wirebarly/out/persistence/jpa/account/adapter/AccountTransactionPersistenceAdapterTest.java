@@ -161,8 +161,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .build();
 
         Long amount2 = 3000L;
-
-        LocalDate tommorrow = today.plusDays(1);
+        LocalDate tomorrow = today.plusDays(1);
 
         AccountTransactionJpaEntity transaction2 = AccountTransactionJpaEntity.builder()
                 .accountTransactionId(7L)
@@ -173,7 +172,7 @@ class AccountTransactionPersistenceAdapterTest extends PersistenceAdapterJpaTest
                 .amount(amount2)
                 .balanceAfter(2000L)
                 .transactedAt(
-                        LocalDateTime.of(tommorrow.getYear(), tommorrow.getMonth(), tommorrow.getDayOfMonth(), 0, 0)
+                        LocalDateTime.of(tomorrow.getYear(), tomorrow.getMonth(), tomorrow.getDayOfMonth(), 0, 0)
                 )
                 .build();
 

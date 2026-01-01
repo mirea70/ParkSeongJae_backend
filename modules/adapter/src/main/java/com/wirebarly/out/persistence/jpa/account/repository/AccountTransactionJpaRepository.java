@@ -4,6 +4,9 @@ import com.wirebarly.out.persistence.jpa.account.entity.AccountTransactionJpaEnt
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AccountTransactionJpaRepository extends JpaRepository<AccountTransactionJpaEntity, Long>, AccountTransactionJpaQueryRepository {
+    List<AccountTransactionJpaEntity> findAllByAccountId(Long accountId);
 }

@@ -84,7 +84,7 @@ public class AccountService implements AccountUseCase {
         accountOutPort.update(account);
     }
 
-    private Account getValidatedAccount(Long accountId) {
+    public Account getValidatedAccount(Long accountId) {
         Account account = accountOutPort.loadOne(new AccountId(accountId))
                 .orElseThrow(() -> new BusinessException(AccountErrorInfo.NOT_FOUND));
 

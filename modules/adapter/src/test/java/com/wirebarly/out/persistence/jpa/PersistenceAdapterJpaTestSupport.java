@@ -7,6 +7,8 @@ import com.wirebarly.out.persistence.jpa.account.repository.AccountTransactionJp
 import com.wirebarly.out.persistence.jpa.config.JpaConfig;
 import com.wirebarly.out.persistence.jpa.customer.adapter.CustomerPersistenceAdapter;
 import com.wirebarly.out.persistence.jpa.customer.repository.CustomerJpaRepository;
+import com.wirebarly.out.persistence.jpa.transfer.adapter.TransferPersistenceAdapter;
+import com.wirebarly.out.persistence.jpa.transfer.repository.TransferJpaRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
         AccountPersistenceAdapter.class,
         AccountTransactionPersistenceAdapter.class,
         CustomerPersistenceAdapter.class,
+        TransferPersistenceAdapter.class,
         JpaConfig.class
 })
 public abstract class PersistenceAdapterJpaTestSupport {
@@ -36,6 +39,9 @@ public abstract class PersistenceAdapterJpaTestSupport {
     protected CustomerPersistenceAdapter customerPersistenceAdapter;
 
     @Autowired
+    protected TransferPersistenceAdapter transferPersistenceAdapter;
+
+    @Autowired
     protected AccountJpaRepository accountJpaRepository;
 
     @Autowired
@@ -43,4 +49,7 @@ public abstract class PersistenceAdapterJpaTestSupport {
 
     @Autowired
     protected CustomerJpaRepository customerJpaRepository;
+
+    @Autowired
+    protected TransferJpaRepository transferJpaRepository;
 }
