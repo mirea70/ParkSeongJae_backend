@@ -1,10 +1,16 @@
 package com.wirebarly.out.persistence.jpa.transfer.repository;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wirebarly.in.transfer.result.TransferResult;
 import com.wirebarly.out.persistence.jpa.transfer.entity.QTransferJpaEntity;
+import com.wirebarly.transfer.model.TransferDirection;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class TransferJpaQueryRepositoryImpl implements TransferJpaQueryRepository {
@@ -22,5 +28,25 @@ public class TransferJpaQueryRepositoryImpl implements TransferJpaQueryRepositor
                         transfer.transferredAt.lt(to)
                 )
                 .fetchOne();
+    }
+
+    @Override
+    public List<TransferResult> findAllByAccountId(Long accountId) {
+        BooleanExpression isOut = transfer.fromAccountId.eq(accountId);
+
+        return queryFactory
+                .select(Projections.constructor(TransferResult.class,
+                        transfer.transferId,
+                        new CaseBuilder().when(isOut).then(TransferDirection.OUT.name()).otherwise(TransferDirection.IN.name()),
+                        new CaseBuilder().when(isOut).then(transfer.toAccountId).otherwise(transfer.fromAccountId),
+                        transfer.amount,
+                        new CaseBuilder().when(isOut).then(transfer.fee).otherwise(0L),
+                        transfer.transferredAt
+                        ))
+                .from(transfer)
+                .where(transfer.fromAccountId.eq(accountId)
+                        .or(transfer.toAccountId.eq(accountId))
+                ).orderBy(transfer.transferredAt.desc())
+                .fetch();
     }
 }

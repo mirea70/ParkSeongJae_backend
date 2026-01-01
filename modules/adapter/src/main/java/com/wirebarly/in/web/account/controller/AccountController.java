@@ -1,17 +1,20 @@
 package com.wirebarly.in.web.account.controller;
 
 import com.wirebarly.in.account.usecase.AccountUseCase;
-import com.wirebarly.in.account.usecase.TransferUseCase;
+import com.wirebarly.in.transfer.usecase.TransferUseCase;
 import com.wirebarly.in.web.WebAdapter;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
 import com.wirebarly.in.web.account.request.AccountWithdrawRequest;
 import com.wirebarly.in.web.account.request.TransferCreateRequest;
 import com.wirebarly.in.web.account.response.AccountResponse;
+import com.wirebarly.in.web.account.response.TransferResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @WebAdapter
 @RestController
@@ -53,5 +56,14 @@ public class AccountController {
                                          @Valid @RequestBody TransferCreateRequest request) {
         transferUseCase.transfer(request.toCommand(accountId));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{accountId}/transfers")
+    public ResponseEntity<List<TransferResponse>> getTransfers(@PathVariable("accountId") Long accountId) {
+        return ResponseEntity.ok(
+                TransferResponse.from(
+                        transferUseCase.getTransfers(accountId)
+                )
+        );
     }
 }

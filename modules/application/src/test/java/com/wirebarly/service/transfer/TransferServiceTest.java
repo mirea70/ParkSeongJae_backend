@@ -5,7 +5,8 @@ import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.AccountTransaction;
 import com.wirebarly.error.exception.DomainException;
-import com.wirebarly.in.account.command.TransferCreateCommand;
+import com.wirebarly.in.transfer.command.TransferCreateCommand;
+import com.wirebarly.in.transfer.result.TransferResult;
 import com.wirebarly.out.account.AccountOutPort;
 import com.wirebarly.out.account.AccountTransactionOutPort;
 import com.wirebarly.out.transfer.TransferOutPort;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -180,5 +182,35 @@ class TransferServiceTest extends ServiceTestSupport {
 
         verify(fromAccount, never()).withdraw(anyLong(), any(), anyLong(), anyLong());
         verify(toAccount, never()).deposit(anyLong(), any(), anyLong());
+    }
+
+    @DisplayName("지정된 계좌의 송금/수취 내역을 조회한다")
+    @Test
+    void getTransfers() {
+        // given
+        Long accountIdValue = 10L;
+
+        Account account = mock(Account.class);
+        AccountId accountId = new AccountId(accountIdValue);
+
+        given(accountService.getValidatedAccount(accountIdValue)).willReturn(account);
+        given(account.getId()).willReturn(accountId);
+
+        List<TransferResult> responses = List.of(
+                mock(TransferResult.class),
+                mock(TransferResult.class)
+        );
+
+        given(transferOutPort.getTransfersBy(accountId)).willReturn(responses);
+
+        // when
+        List<TransferResult> result = transferService.getTransfers(accountIdValue);
+
+        // then
+        assertThat(result).isSameAs(responses);
+
+        verify(accountService).getValidatedAccount(accountIdValue);
+        verify(transferOutPort).getTransfersBy(accountId);
+        verifyNoMoreInteractions(accountService, transferOutPort);
     }
 }

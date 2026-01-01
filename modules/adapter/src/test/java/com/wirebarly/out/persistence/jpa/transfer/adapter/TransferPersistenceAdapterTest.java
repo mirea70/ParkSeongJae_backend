@@ -1,9 +1,11 @@
 package com.wirebarly.out.persistence.jpa.transfer.adapter;
 
 import com.wirebarly.account.model.AccountId;
+import com.wirebarly.in.transfer.result.TransferResult;
 import com.wirebarly.out.persistence.jpa.PersistenceAdapterJpaTestSupport;
 import com.wirebarly.out.persistence.jpa.transfer.entity.TransferJpaEntity;
 import com.wirebarly.transfer.model.Transfer;
+import com.wirebarly.transfer.model.TransferDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -165,5 +167,66 @@ class TransferPersistenceAdapterTest extends PersistenceAdapterJpaTestSupport {
 
         // then
         assertThat(result).isEqualTo(amount1);
+    }
+
+    @Test
+    @DisplayName("지정 계좌의 송금/수취 내역을 최신순으로 조회하고 direction/counterparty/fee 매핑이 맞다")
+    void getTransfersBy() {
+        // given
+        long target = 10L;
+
+        // target 계좌가 OUT (from=10)
+        LocalDateTime time1 = LocalDateTime.of(2026, 1, 1, 10, 0, 0);
+        saveTransfer(1L, 10L, 20L, 100_000L, 1_000L, time1);
+
+        LocalDateTime time2 = LocalDateTime.of(2026, 1, 1, 12, 0, 0);
+        // target 계좌가 IN (to=10)
+        saveTransfer(2L, 30L, 10L, 50_000L, 500L, time2);
+
+        // target과 무관한 transfer
+        saveTransfer(3L, 99L, 98L, 1_000L, 10L, time2);
+
+        // when
+        List<TransferResult> result = transferPersistenceAdapter.getTransfersBy(new AccountId(target));
+
+        // then
+        // 최신순 정렬: 11:00(IN) -> 10:00(OUT)
+        assertThat(result).hasSize(2);
+
+        TransferResult first = result.get(0);
+        assertThat(first.transferId()).isEqualTo(2L);
+        assertThat(first.direction()).isEqualTo(TransferDirection.IN.name());
+        assertThat(first.counterpartyAccountId()).isEqualTo(30L);  // IN이면 from이 상대
+        assertThat(first.amount()).isEqualTo(50_000L);
+        assertThat(first.fee()).isEqualTo(0L);
+        assertThat(first.transferredAt()).isEqualTo(time2);
+
+        TransferResult second = result.get(1);
+        assertThat(second.transferId()).isEqualTo(1L);
+        assertThat(second.direction()).isEqualTo(TransferDirection.OUT.name());
+        assertThat(second.counterpartyAccountId()).isEqualTo(20L);  // OUT이면 to가 상대
+        assertThat(second.amount()).isEqualTo(100_000L);
+        assertThat(second.fee()).isEqualTo(1_000L);
+        assertThat(second.transferredAt()).isEqualTo(time1);
+    }
+
+    private void saveTransfer(
+            Long transferId,
+            Long fromAccountId,
+            Long toAccountId,
+            Long amount,
+            Long fee,
+            LocalDateTime transferredAt
+    ) {
+        TransferJpaEntity transfer = TransferJpaEntity.builder()
+                .transferId(transferId)
+                .fromAccountId(fromAccountId)
+                .toAccountId(toAccountId)
+                .amount(amount)
+                .fee(fee)
+                .transferredAt(transferredAt)
+                .build();
+
+        transferJpaRepository.save(transfer);
     }
 }

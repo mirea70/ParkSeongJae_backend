@@ -1,6 +1,6 @@
 package com.wirebarly.in.web.account.request;
 
-import com.wirebarly.in.account.command.TransferCreateCommand;
+import com.wirebarly.in.transfer.command.TransferCreateCommand;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 

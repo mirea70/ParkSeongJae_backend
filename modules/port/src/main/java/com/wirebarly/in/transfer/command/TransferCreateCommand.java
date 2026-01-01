@@ -1,4 +1,4 @@
-package com.wirebarly.in.account.command;
+package com.wirebarly.in.transfer.command;
 
 public record TransferCreateCommand(
         Long fromAccountId,

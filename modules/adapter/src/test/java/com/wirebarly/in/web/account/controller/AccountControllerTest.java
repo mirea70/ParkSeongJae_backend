@@ -1,7 +1,7 @@
 package com.wirebarly.in.web.account.controller;
 
 import com.wirebarly.in.account.usecase.AccountUseCase;
-import com.wirebarly.in.account.usecase.TransferUseCase;
+import com.wirebarly.in.transfer.usecase.TransferUseCase;
 import com.wirebarly.in.web.ControllerTestSupport;
 import com.wirebarly.in.web.account.request.AccountCreateRequest;
 import com.wirebarly.in.web.account.request.AccountDepositRequest;
@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -271,6 +272,19 @@ class AccountControllerTest extends ControllerTestSupport {
 
         // when
         ResultActions result = postRequest("/api/v1/accounts/{accountId}/transfer", 1L, request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_INPUT_VALUE"));
+    }
+
+    @DisplayName("송금/수취내역 조회 시, 계좌 ID가 숫자가 아닌 값이 입력되면 실패한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"abc"})
+    void getTransfersAccountIdNotNumber(String accountId) throws Exception {
+        // when
+        ResultActions result = mockMvc.perform(get("/api/v1/accounts/{accountId}/transfers", accountId));
 
         // then
         result.andDo(print())

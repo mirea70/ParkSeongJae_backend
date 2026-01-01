@@ -3,8 +3,9 @@ package com.wirebarly.service.transfer;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountTransaction;
 import com.wirebarly.account.model.AccountTransactionTransferType;
-import com.wirebarly.in.account.command.TransferCreateCommand;
-import com.wirebarly.in.account.usecase.TransferUseCase;
+import com.wirebarly.in.transfer.command.TransferCreateCommand;
+import com.wirebarly.in.transfer.result.TransferResult;
+import com.wirebarly.in.transfer.usecase.TransferUseCase;
 import com.wirebarly.out.account.AccountOutPort;
 import com.wirebarly.out.account.AccountTransactionOutPort;
 import com.wirebarly.out.common.IdGenerator;
@@ -91,5 +92,12 @@ public class TransferService implements TransferUseCase {
                 transfer.getId().getValue(),
                 AccountTransactionTransferType.TRANSFER.name()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransferResult> getTransfers(Long accountId) {
+        Account account = accountService.getValidatedAccount(accountId);
+        return transferOutPort.getTransfersBy(account.getId());
     }
 }
