@@ -1,9 +1,11 @@
 package com.wirebarly.service.transfer;
 
 import com.wirebarly.ServiceTestSupport;
+import com.wirebarly.TestLoaded;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.AccountTransaction;
+import com.wirebarly.common.model.Loaded;
 import com.wirebarly.error.exception.DomainException;
 import com.wirebarly.in.transfer.command.TransferCreateCommand;
 import com.wirebarly.in.transfer.result.TransferResult;
@@ -81,8 +83,11 @@ class TransferServiceTest extends ServiceTestSupport {
                 null
         ));
 
-        given(accountService.getValidatedAccount(fromAccountId)).willReturn(fromAccount);
-        given(accountService.getValidatedAccount(toAccountId)).willReturn(toAccount);
+        Loaded<Account> loadedFromAccount = new TestLoaded<>(fromAccount);
+        Loaded<Account> loadedToAccount   = new TestLoaded<>(toAccount);
+
+        given(accountService.getValidatedAccountForUpdate(fromAccountId)).willReturn(loadedFromAccount);
+        given(accountService.getValidatedAccountForUpdate(toAccountId)).willReturn(loadedToAccount);
 
         Long transferId = 1L;
         Long accountTransactionId1 = 101L;
@@ -111,8 +116,8 @@ class TransferServiceTest extends ServiceTestSupport {
         // then
 
         // - 계좌 조회
-        verify(accountService).getValidatedAccount(fromAccountId);
-        verify(accountService).getValidatedAccount(toAccountId);
+        verify(accountService).getValidatedAccountForUpdate(fromAccountId);
+        verify(accountService).getValidatedAccountForUpdate(toAccountId);
 
         // - 누적금액 조회
         verify(transferOutPort).getDailyTransferAmount(eq(fromAccount.getId()), any(LocalDate.class));
@@ -126,7 +131,8 @@ class TransferServiceTest extends ServiceTestSupport {
         // - 저장 호출 검증
         verify(transferOutPort, times(1)).insert(any(Transfer.class));
         verify(accountTransactionOutPort, times(1)).insert(accountTransactionListCaptor.capture());
-        verify(accountOutPort, times(2)).update(any(Account.class));
+        verify(accountOutPort, times(1)).applyBalance(loadedFromAccount);
+        verify(accountOutPort, times(1)).applyBalance(loadedToAccount);
 
         verifyNoMoreInteractions(transferOutPort, accountTransactionOutPort, accountOutPort, accountService, idGenerator);
     }
@@ -166,8 +172,11 @@ class TransferServiceTest extends ServiceTestSupport {
                 null
         ));
 
-        given(accountService.getValidatedAccount(fromAccountId)).willReturn(fromAccount);
-        given(accountService.getValidatedAccount(toAccountId)).willReturn(toAccount);
+        Loaded<Account> loadedFromAccount = new TestLoaded<>(fromAccount);
+        Loaded<Account> loadedToAccount   = new TestLoaded<>(toAccount);
+
+        given(accountService.getValidatedAccountForUpdate(fromAccountId)).willReturn(loadedFromAccount);
+        given(accountService.getValidatedAccountForUpdate(toAccountId)).willReturn(loadedToAccount);
 
         // 오늘 누적 이체액이 이미 한도 달성
         given(transferOutPort.getDailyTransferAmount(any(AccountId.class), any(LocalDate.class))).willReturn(TransferPolicy.DAILY_TRANSFER_LIMIT);
@@ -193,7 +202,9 @@ class TransferServiceTest extends ServiceTestSupport {
         Account account = mock(Account.class);
         AccountId accountId = new AccountId(accountIdValue);
 
-        given(accountService.getValidatedAccount(accountIdValue)).willReturn(account);
+        Loaded<Account> loadedAccount = new TestLoaded<>(account);
+
+        given(accountService.getValidatedAccount(accountIdValue)).willReturn(loadedAccount);
         given(account.getId()).willReturn(accountId);
 
         List<TransferResult> responses = List.of(

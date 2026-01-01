@@ -3,6 +3,7 @@ package com.wirebarly.service.account;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.AccountTransaction;
+import com.wirebarly.common.model.Loaded;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
 import com.wirebarly.error.info.AccountErrorInfo;
@@ -53,26 +54,27 @@ public class AccountService implements AccountUseCase {
 
     @Override
     public void remove(Long accountId) {
-        Account account = getValidatedAccount(accountId);
+        Loaded<Account> loadedAccount = getValidatedAccountForUpdate(accountId);
 
-        account.close(LocalDateTime.now());
-        accountOutPort.update(account);
+        loadedAccount.domain().close(LocalDateTime.now());
+        accountOutPort.applyClose(loadedAccount);
     }
 
     @Override
     public void deposit(Long accountId, AccountDepositCommand command) {
-        Account account = getValidatedAccount(accountId);
+        Loaded<Account> loadedAccount = getValidatedAccountForUpdate(accountId);
 
         Long accountTransactionId = idGenerator.nextId();
-        AccountTransaction accountTransaction = account.deposit(command.amount(), LocalDateTime.now(), accountTransactionId);
+        AccountTransaction accountTransaction = loadedAccount.domain().deposit(command.amount(), LocalDateTime.now(), accountTransactionId);
 
         accountTransactionOutPort.insert(accountTransaction);
-        accountOutPort.update(account);
+        accountOutPort.applyBalance(loadedAccount);
     }
 
     @Override
     public void withdraw(Long accountId, AccountWithdrawCommand command) {
-        Account account = getValidatedAccount(accountId);
+        Loaded<Account> loadedAccount = getValidatedAccountForUpdate(accountId);
+        Account account = loadedAccount.domain();
 
         Long accountTransactionId = idGenerator.nextId();
 
@@ -81,16 +83,26 @@ public class AccountService implements AccountUseCase {
         AccountTransaction accountTransaction = account.withdraw(command.amount(), LocalDateTime.now(), accountTransactionId, dailyWithdrawAmount);
 
         accountTransactionOutPort.insert(accountTransaction);
-        accountOutPort.update(account);
+        accountOutPort.applyBalance(loadedAccount);
     }
 
-    public Account getValidatedAccount(Long accountId) {
-        Account account = accountOutPort.loadOneForUpdate(new AccountId(accountId))
+    public Loaded<Account> getValidatedAccount(Long accountId) {
+        Loaded<Account> loadedAccount = accountOutPort.loadOne(new AccountId(accountId))
                 .orElseThrow(() -> new BusinessException(AccountErrorInfo.NOT_FOUND));
 
-        if(!customerOutPort.isExist(account.getCustomerId())) {
+        if(!customerOutPort.isExist(loadedAccount.domain().getCustomerId())) {
             throw new BusinessException(CustomerErrorInfo.NOT_FOUND);
         }
-        return account;
+        return loadedAccount;
+    }
+
+    public Loaded<Account> getValidatedAccountForUpdate(Long accountId) {
+        Loaded<Account> loadedAccount = accountOutPort.loadOneForUpdate(new AccountId(accountId))
+                .orElseThrow(() -> new BusinessException(AccountErrorInfo.NOT_FOUND));
+
+        if(!customerOutPort.isExist(loadedAccount.domain().getCustomerId())) {
+            throw new BusinessException(CustomerErrorInfo.NOT_FOUND);
+        }
+        return loadedAccount;
     }
 }

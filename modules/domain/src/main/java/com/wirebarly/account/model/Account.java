@@ -55,6 +55,7 @@ public class Account {
     public void close(LocalDateTime now) {
         this.status = AccountStatus.CLOSED;
         this.closedAt = now;
+        this.updatedAt = now;
     }
 
     private boolean isClosed() {

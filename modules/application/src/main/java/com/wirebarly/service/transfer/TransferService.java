@@ -3,6 +3,7 @@ package com.wirebarly.service.transfer;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountTransaction;
 import com.wirebarly.account.model.AccountTransactionTransferType;
+import com.wirebarly.common.model.Loaded;
 import com.wirebarly.in.transfer.command.TransferCreateCommand;
 import com.wirebarly.in.transfer.result.TransferResult;
 import com.wirebarly.in.transfer.usecase.TransferUseCase;
@@ -32,8 +33,11 @@ public class TransferService implements TransferUseCase {
 
     @Override
     public void transfer(TransferCreateCommand command) {
-        Account fromAccount = accountService.getValidatedAccount(command.fromAccountId());
-        Account toAccount = accountService.getValidatedAccount(command.toAccountId());
+        Loaded<Account> loadedFromAccount = accountService.getValidatedAccountForUpdate(command.fromAccountId());
+        Loaded<Account> loadedToAccount = accountService.getValidatedAccountForUpdate(command.toAccountId());
+        Account fromAccount = loadedFromAccount.domain();
+        Account toAccount = loadedToAccount.domain();
+
         LocalDateTime now = LocalDateTime.now();
 
         Transfer transfer = Transfer.createNew(
@@ -45,15 +49,15 @@ public class TransferService implements TransferUseCase {
                 transferOutPort.getDailyTransferAmount(fromAccount.getId(), now.toLocalDate())
         );
 
-        List<AccountTransaction> accountTransactionsByTransfer = withdrawFromAccount(fromAccount, transfer, now);
-        accountTransactionsByTransfer.add(
+        List<AccountTransaction> accountTransactionsByTransfers = withdrawFromAccount(fromAccount, transfer, now);
+        accountTransactionsByTransfers.add(
                 depositToAccount(toAccount, transfer, now)
         );
 
         transferOutPort.insert(transfer);
-        accountTransactionOutPort.insert(accountTransactionsByTransfer);
-        accountOutPort.update(fromAccount);
-        accountOutPort.update(toAccount);
+        accountTransactionOutPort.insert(accountTransactionsByTransfers);
+        accountOutPort.applyBalance(loadedFromAccount);
+        accountOutPort.applyBalance(loadedToAccount);
     }
 
     private List<AccountTransaction> withdrawFromAccount(Account fromAccount, Transfer transfer, LocalDateTime now) {
@@ -97,7 +101,7 @@ public class TransferService implements TransferUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<TransferResult> getTransfers(Long accountId) {
-        Account account = accountService.getValidatedAccount(accountId);
-        return transferOutPort.getTransfersBy(account.getId());
+        Loaded<Account> loadedAccount = accountService.getValidatedAccount(accountId);
+        return transferOutPort.getTransfersBy(loadedAccount.domain().getId());
     }
 }

@@ -101,4 +101,15 @@ public class AccountJpaEntity {
         this.updatedAt = domain.getUpdatedAt();
         this.closedAt = domain.getClosedAt();
     }
+
+    public void applyCloseFrom(Account domain) {
+        this.status = domain.getStatus().name();
+        this.updatedAt = domain.getUpdatedAt();
+        this.closedAt = domain.getClosedAt();
+    }
+
+    public void applyBalance(Account domain) {
+        this.balance = domain.getBalance().getValue();
+        this.updatedAt = domain.getUpdatedAt();
+    }
 }

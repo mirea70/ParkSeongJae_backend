@@ -1,8 +1,10 @@
 package com.wirebarly.service.account;
 
+import com.wirebarly.TestLoaded;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.BankCode;
+import com.wirebarly.common.model.Loaded;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +32,9 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
                 "1231231231",
                 LocalDateTime.now()));
 
-        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
+        Loaded<Account> loadedAccount = new TestLoaded<>(account);
+
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(loadedAccount));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
 
         // when
@@ -40,7 +44,7 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
         verify(accountOutPort, times(1)).loadOneForUpdate(any(AccountId.class));
         verify(account).close(any(LocalDateTime.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
-        verify(accountOutPort, times(1)).update(account);
+        verify(accountOutPort, times(1)).applyClose(loadedAccount);
     }
 
     @DisplayName("계좌가 존재하지 않으면 예외를 던진다.")
@@ -67,7 +71,9 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
                 LocalDateTime.now()
         );
 
-        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
+        Loaded<Account> loadedAccount = new TestLoaded<>(account);
+
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(loadedAccount));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then

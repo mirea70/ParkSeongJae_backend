@@ -1,9 +1,11 @@
 package com.wirebarly.service.account;
 
+import com.wirebarly.TestLoaded;
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
 import com.wirebarly.account.model.AccountTransaction;
 import com.wirebarly.account.model.BankCode;
+import com.wirebarly.common.model.Loaded;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
 import com.wirebarly.error.info.AccountErrorInfo;
@@ -35,7 +37,9 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
                 LocalDateTime.now()));
         Long accountTransactionId = 1L;
 
-        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
+        Loaded<Account> loadedAccount = new TestLoaded<>(account);
+
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(loadedAccount));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(true);
         given(idGenerator.nextId()).willReturn(accountTransactionId);
 
@@ -46,7 +50,7 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
         verify(accountOutPort, times(1)).loadOneForUpdate(any(AccountId.class));
         verify(account).deposit(any(Long.class), any(LocalDateTime.class), any(Long.class));
         verify(customerOutPort, times(1)).isExist(any(CustomerId.class));
-        verify(accountOutPort, times(1)).update(account);
+        verify(accountOutPort, times(1)).applyBalance(loadedAccount);
         verify(accountTransactionOutPort, times(1)).insert(any(AccountTransaction.class));
     }
 
@@ -75,7 +79,9 @@ class AccountServiceDepositTest extends AccountServiceTestSupport {
                 LocalDateTime.now()
         );
 
-        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(account));
+        Loaded<Account> loadedAccount = new TestLoaded<>(account);
+
+        given(accountOutPort.loadOneForUpdate(any(AccountId.class))).willReturn(Optional.of(loadedAccount));
         given(customerOutPort.isExist(any(CustomerId.class))).willReturn(false);
 
         // when // then
