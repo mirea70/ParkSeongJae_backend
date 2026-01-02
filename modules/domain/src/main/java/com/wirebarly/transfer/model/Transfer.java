@@ -24,6 +24,10 @@ public class Transfer {
 
     public static Transfer createNew(Long id, Long fromAccountId, Long toAccountId, Long amount, LocalDateTime now, Long dailyTransferAmount) {
         Money transferAmount = new Money(amount);
+        if(transferAmount.isLessThan(new Money(TransferPolicy.TRANSFER_MIN_AMOUNT))) {
+            throw new DomainException(TransferErrorInfo.TOO_SMALL_TRANSFER_AMOUNT);
+        }
+
         Money dailyUsed = new Money(dailyTransferAmount);
         Money limit = new Money(TransferPolicy.DAILY_TRANSFER_LIMIT);
 

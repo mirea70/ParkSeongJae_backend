@@ -43,6 +43,25 @@ class TransferTest {
     }
 
     @Test
+    @DisplayName("송금액은 기준금액 이상만 가능하다.")
+    void createNewFailLessThanBaseAmount() {
+        // given
+        Long id = 2L;
+        Long fromAccountId = 11L;
+        Long toAccountId = 21L;
+        Long amount = 50L;
+        LocalDateTime now = LocalDateTime.of(2026, 1, 1, 1, 0, 0);
+
+        Long dailyTransferAmount = TransferPolicy.DAILY_TRANSFER_LIMIT - amount;
+
+        // when // then
+        assertThatThrownBy(() -> Transfer.createNew(id, fromAccountId, toAccountId, amount, now, dailyTransferAmount))
+                .isInstanceOf(DomainException.class)
+                .extracting("errorInfo")
+                .isEqualTo(TransferErrorInfo.TOO_SMALL_TRANSFER_AMOUNT);
+    }
+
+    @Test
     @DisplayName("경계값: 누적 + 금액이 한도와 같으면(=) 초과가 아니므로 생성된다")
     void createNewSuccessEqualToLimit() {
         // given
