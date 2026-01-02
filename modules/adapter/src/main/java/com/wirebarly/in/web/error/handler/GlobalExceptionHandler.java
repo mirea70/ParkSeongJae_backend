@@ -115,6 +115,4 @@ public class GlobalExceptionHandler {
                         ErrorResponse.of(errorInfo, request.getRequestURI(), Map.of())
                 );
     }
-
-
 }
