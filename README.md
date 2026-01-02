@@ -34,15 +34,23 @@ Docker Compose를 사용하여 애플리케이션과 MySQL 데이터베이스를
 
 Docker Compose를 사용하여 애플리케이션과 데이터베이스를 한 번에 빌드하고 실행할 수 있습니다.
 
-### 0. 프로젝트 다운로드 (Clone)
+### 0. 프로젝트 다운로드 (Clone & 디렉토리 이동)
 
 ```bash
 git clone https://github.com/mirea70/ParkSeongJae_backend.git
+
+cd ParkSeongJae_backend
 ```
 
 ### 1. 실행 (Build & Run)
 
 프로젝트 루트 디렉토리에서 아래 명령어를 실행해주세요.
+
+```bash
+docker compose up -d --build
+```
+
+또는
 
 ```bash
 docker-compose up -d --build
@@ -72,7 +80,10 @@ docker logs -f wirebarley-app
 ### 4. 종료
 
 실행 중인 컨테이너를 종료하고 삭제합니다.
-
+```bash
+docker compose down
+```
+또는
 ```bash
 docker-compose down
 ```
@@ -117,26 +128,6 @@ curl -X POST http://localhost:9091/api/v1/accounts/new \
 - **API 명세서** : [Notion Link](https://www.notion.so/API-2dc64e392ce780c99ef3e8b7c50aff1c?source=copy_link)
 - **테이블 설계도** : [ERD Cloud Link](https://www.erdcloud.com/d/jDFFiK65vYm5S7DkW)
 
-<br/>
-
-<br/>
-
-## ✨ Features
-
-### 1. 계좌 관리 (Account Management)
-- **계좌 개설**: 고객 ID, 은행 코드, 계좌 번호를 입력받아 새로운 계좌를 생성합니다.
-- **계좌 해지**: 사용하지 않는 계좌를 안전하게 삭제(해지) 상태로 변경합니다.
-
-### 2. 입출금 및 이체 (Transaction)
-- **입금 (Deposit)**: 특정 계좌에 금액을 입금합니다.
-- **출금 (Withdraw)**: 일일 출금 한도(1,000,000원) 내에서 출금을 수행합니다. 잔액 부족 시 요청이 거절됩니다.
-- **이체 (Transfer)**: 
-  - 타 계좌로 금액을 송금합니다.
-  - **수수료**: 이체 금액의 1%가 수수료로 함께 차감됩니다.
-  - **한도**: 일일 이체 한도(3,000,000원)를 초과할 수 없습니다.
-
-### 3. 내역 조회 (History)
-- **거래 내역 조회**: 특정 계좌의 모든 송금 및 수취 내역을 최신순으로 조회할 수 있습니다.
 
 <br/>
 
