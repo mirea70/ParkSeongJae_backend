@@ -115,7 +115,7 @@ curl -X POST http://localhost:9091/api/v1/accounts/new \
 
 ## 📚 Documentation
 - **API 명세서** : [Notion Link](https://www.notion.so/API-2dc64e392ce780c99ef3e8b7c50aff1c?source=copy_link)
-- **ERD 클라우드** : [ERD Cloud Link](https://www.erdcloud.com/d/jDFFiK65vYm5S7DkW)
+- **테이블 설계도** : [ERD Cloud Link](https://www.erdcloud.com/d/jDFFiK65vYm5S7DkW)
 
 <br/>
 
