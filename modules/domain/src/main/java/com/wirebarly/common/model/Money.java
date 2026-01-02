@@ -28,6 +28,10 @@ public class Money {
         return this.value > other.value;
     }
 
+    public boolean isLessThan(Money other) {
+        return this.value < other.value;
+    }
+
     static void validate(Long input) {
         if(input == null)
             throw new DomainException(CommonErrorInfo.Money_NOT_EXIST);

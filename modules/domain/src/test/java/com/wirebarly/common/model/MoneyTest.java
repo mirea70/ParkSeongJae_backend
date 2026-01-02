@@ -95,4 +95,24 @@ class MoneyTest {
         assertThat(result2).isFalse();
         assertThat(result3).isFalse();
     }
+
+    @DisplayName("대상보다 작으면 true, 아니면 false를 반환한다.")
+    @Test
+    void isLessThan() {
+        // given
+        Money money = new Money(2000L);
+        Money target1 = new Money(1000L);
+        Money target2 = new Money(2000L);
+        Money target3 = new Money(3000L);
+
+        // when
+        boolean result1 = money.isLessThan(target1);
+        boolean result2 = money.isLessThan(target2);
+        boolean result3 = money.isLessThan(target3);
+
+        // then
+        assertThat(result1).isFalse();
+        assertThat(result2).isFalse();
+        assertThat(result3).isTrue();
+    }
 }
