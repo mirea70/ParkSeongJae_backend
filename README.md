@@ -3,6 +3,8 @@
 이 프로젝트는 헥사고날 아키텍처(Hexagonal Architecture)를 기반으로 구축된 송금 시스템 서버 애플리케이션입니다.
 Docker Compose를 사용하여 애플리케이션과 MySQL 데이터베이스를 손쉽게 실행할 수 있도록 구성되어 있습니다.
 
+<br/>
+
 ## 🛠 Tech Stack
 
 - **Java**: 21
@@ -61,7 +63,7 @@ docker ps
 
 ### 3. 로그 확인
 
-애플리케이션 로그를 실시간으로 확인하려면 아래 명령어를 사용하세요.
+애플리케이션 로그를 실시간으로 확인하려면 아래 명령어를 사용해주세요.
 
 ```bash
 docker logs -f wirebarly-app
@@ -114,6 +116,27 @@ curl -X POST http://localhost:9091/api/v1/accounts/new \
 ## 📚 Documentation
 - **API 명세서** : [Notion Link](https://www.notion.so/API-2dc64e392ce780c99ef3e8b7c50aff1c?source=copy_link)
 - **ERD 클라우드** : [ERD Cloud Link](https://www.erdcloud.com/d/jDFFiK65vYm5S7DkW)
+
+<br/>
+
+<br/>
+
+## ✨ Features
+
+### 1. 계좌 관리 (Account Management)
+- **계좌 개설**: 고객 ID, 은행 코드, 계좌 번호를 입력받아 새로운 계좌를 생성합니다.
+- **계좌 해지**: 사용하지 않는 계좌를 안전하게 삭제(해지) 상태로 변경합니다.
+
+### 2. 입출금 및 이체 (Transaction)
+- **입금 (Deposit)**: 특정 계좌에 금액을 입금합니다.
+- **출금 (Withdraw)**: 일일 출금 한도(1,000,000원) 내에서 출금을 수행합니다. 잔액 부족 시 요청이 거절됩니다.
+- **이체 (Transfer)**: 
+  - 타 계좌로 금액을 송금합니다.
+  - **수수료**: 이체 금액의 1%가 수수료로 함께 차감됩니다.
+  - **한도**: 일일 이체 한도(3,000,000원)를 초과할 수 없습니다.
+
+### 3. 내역 조회 (History)
+- **거래 내역 조회**: 특정 계좌의 모든 송금 및 수취 내역을 최신순으로 조회할 수 있습니다.
 
 <br/>
 
