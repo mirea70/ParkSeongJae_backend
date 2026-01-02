@@ -33,22 +33,27 @@ public class TransferService implements TransferUseCase {
 
     @Override
     public void transfer(TransferCreateCommand command) {
-        Long fromId = command.fromAccountId();
-        Long toId   = command.toAccountId();
+        // 1. 계좌 ID 추출
+        Long fromAccountId = command.fromAccountId();
+        Long toAccountId = command.toAccountId();
 
-        // 잠금 순서 고정: 작은 ID → 큰 ID
-        Long firstId  = Math.min(fromId, toId);
-        Long secondId = Math.max(fromId, toId);
+        // 2. 계좌 잠금 및 로드 (데드락 방지)
+        boolean isFromAccountSmaller = fromAccountId < toAccountId;
+        Long firstLockId = isFromAccountSmaller ? fromAccountId : toAccountId;
+        Long secondLockId = isFromAccountSmaller ? toAccountId : fromAccountId;
 
-        Loaded<Account> first  = accountService.getValidatedAccountForUpdate(firstId);
-        Loaded<Account> second = accountService.getValidatedAccountForUpdate(secondId);
+        Loaded<Account> firstLoadedAccount = accountService.getValidatedAccountForUpdate(firstLockId);
+        Loaded<Account> secondLoadedAccount = accountService.getValidatedAccountForUpdate(secondLockId);
 
-        Loaded<Account> loadedFromAccount = fromId.equals(first.domain().getId().getValue()) ? first : second;
-        Loaded<Account> loadedToAccount   = loadedFromAccount == first ? second : first;
+        Loaded<Account> loadedFromAccount = isFromAccountSmaller ? firstLoadedAccount : secondLoadedAccount;
+        Loaded<Account> loadedToAccount = isFromAccountSmaller ? secondLoadedAccount : firstLoadedAccount;
+
         Account fromAccount = loadedFromAccount.domain();
         Account toAccount = loadedToAccount.domain();
 
+        // 3. 송금 도메인 객체 생성
         LocalDateTime now = LocalDateTime.now();
+        Long dailyTransferAmount = transferOutPort.getDailyTransferAmount(fromAccount.getId(), now.toLocalDate());
 
         Transfer transfer = Transfer.createNew(
                 idGenerator.nextId(),
@@ -56,56 +61,58 @@ public class TransferService implements TransferUseCase {
                 toAccount.getId().getValue(),
                 command.amount(),
                 now,
-                transferOutPort.getDailyTransferAmount(fromAccount.getId(), now.toLocalDate())
-        );
+                dailyTransferAmount);
 
-        List<AccountTransaction> accountTransactionsByTransfers = withdrawFromAccount(fromAccount, transfer, now);
-        accountTransactionsByTransfers.add(
-                depositToAccount(toAccount, transfer, now)
-        );
+        // 4. 출금 및 입금 처리 (도메인 로직 실행)
+        List<AccountTransaction> transactionHistory = new ArrayList<>();
 
+        List<AccountTransaction> withdrawTransactions = processWithdrawal(fromAccount, transfer, now);
+        AccountTransaction depositTransaction = processDeposit(toAccount, transfer, now);
+
+        transactionHistory.addAll(withdrawTransactions);
+        transactionHistory.add(depositTransaction);
+
+        // 5. 변경 사항 저장
         transferOutPort.insert(transfer);
-        accountTransactionOutPort.insert(accountTransactionsByTransfers);
+        accountTransactionOutPort.insert(transactionHistory);
         accountOutPort.applyBalance(loadedFromAccount);
         accountOutPort.applyBalance(loadedToAccount);
     }
 
-    private List<AccountTransaction> withdrawFromAccount(Account fromAccount, Transfer transfer, LocalDateTime now) {
+    private List<AccountTransaction> processWithdrawal(Account fromAccount, Transfer transfer, LocalDateTime now) {
         Long transferId = transfer.getId().getValue();
         Long transferAmount = transfer.getAmount().getValue();
         Long transferFee = transfer.getFee().getValue();
-        Long dailyWithdrawAmount = accountTransactionOutPort.getDailyWithdrawAmount(fromAccount.getId(), now.toLocalDate());
+        Long dailyWithdrawAmount = accountTransactionOutPort.getDailyWithdrawAmount(fromAccount.getId(),
+                now.toLocalDate());
 
         // 송금액 출금
-        AccountTransaction fromAccountWithdrawAmountTransaction = fromAccount.withdraw(
+        AccountTransaction withdrawalTransaction = fromAccount.withdraw(
                 transferAmount,
                 now,
                 idGenerator.nextId(),
                 dailyWithdrawAmount,
                 transferId,
-                AccountTransactionTransferType.TRANSFER.name()
-        );
+                AccountTransactionTransferType.TRANSFER.name());
         // 송금 수수료 출금
-        AccountTransaction fromAccountWithdrawFeeTransaction = fromAccount.withdraw(
+        AccountTransaction feeTransaction = fromAccount.withdraw(
                 transferFee,
                 now,
                 idGenerator.nextId(),
                 dailyWithdrawAmount + transferAmount,
                 transferId,
-                AccountTransactionTransferType.TRANSFER_FEE.name()
-        );
+                AccountTransactionTransferType.TRANSFER_FEE.name());
 
-        return new ArrayList<>(List.of(fromAccountWithdrawAmountTransaction, fromAccountWithdrawFeeTransaction));
+        return new ArrayList<>(List.of(withdrawalTransaction, feeTransaction));
     }
 
-    private AccountTransaction depositToAccount(Account toAccount, Transfer transfer, LocalDateTime now) {
+    private AccountTransaction processDeposit(Account toAccount, Transfer transfer, LocalDateTime now) {
         return toAccount.deposit(
                 transfer.getAmount().getValue(),
                 now,
                 idGenerator.nextId(),
                 transfer.getId().getValue(),
-                AccountTransactionTransferType.TRANSFER.name()
-        );
+                AccountTransactionTransferType.TRANSFER.name());
     }
 
     @Override
