@@ -9,7 +9,7 @@ ext {
     lombokVersion = '1.18.34'
 }
 
-group = 'com.wirebarly'
+group = 'com.wirebarley'
 version = '0.0.1'
 
 subprojects {

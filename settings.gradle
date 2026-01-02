@@ -1,4 +1,4 @@
-rootProject.name = 'wirebarly-test'
+rootProject.name = 'wirebarley-test'
 
 include 'adapter'
 include 'port'

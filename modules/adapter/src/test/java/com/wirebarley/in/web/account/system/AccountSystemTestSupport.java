@@ -1,0 +1,37 @@
+package com.wirebarley.in.web.account.system;
+
+import com.wirebarley.in.web.SystemTestSupport;
+import com.wirebarley.out.persistence.jpa.account.repository.AccountJpaRepository;
+import com.wirebarley.out.persistence.jpa.account.repository.AccountTransactionJpaRepository;
+import com.wirebarley.out.persistence.jpa.customer.repository.CustomerJpaRepository;
+import com.wirebarley.out.persistence.jpa.transfer.repository.TransferJpaRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class AccountSystemTestSupport extends SystemTestSupport {
+
+    @Autowired
+    protected CustomerJpaRepository customerJpaRepository;
+
+    @Autowired
+    protected AccountJpaRepository accountJpaRepository;
+
+    @Autowired
+    protected AccountTransactionJpaRepository accountTransactionJpaRepository;
+
+    @Autowired
+    protected TransferJpaRepository transferJpaRepository;
+
+    @Autowired
+    protected EntityManager entityManager;
+
+    @AfterEach
+    public void tearDown() {
+        customerJpaRepository.deleteAllInBatch();
+        accountJpaRepository.deleteAllInBatch();
+        accountTransactionJpaRepository.deleteAllInBatch();
+        transferJpaRepository.deleteAllInBatch();
+    }
+
+}

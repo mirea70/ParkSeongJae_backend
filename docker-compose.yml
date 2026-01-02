@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  wirebarly-db:
+  wirebarley-db:
     image: mysql:8.0
-    container_name: wirebarly-db
+    container_name: wirebarley-db
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: wirebarly
+      MYSQL_DATABASE: wirebarley
       MYSQL_ROOT_HOST: '%'
     volumes:
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -17,26 +17,26 @@ services:
     ports:
       - "7233:3306"
     networks:
-      - wirebarly-net
+      - wirebarley-net
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  wirebarly-app:
+  wirebarley-app:
     build: .
-    container_name: wirebarly-app
+    container_name: wirebarley-app
     ports:
       - "9091:9091"
     depends_on:
-      wirebarly-db:
+      wirebarley-db:
         condition: service_healthy
     networks:
-      - wirebarly-net
+      - wirebarley-net
     environment:
       SPRING_PROFILES_ACTIVE: docker
 
 networks:
-  wirebarly-net:
+  wirebarley-net:
     driver: bridge

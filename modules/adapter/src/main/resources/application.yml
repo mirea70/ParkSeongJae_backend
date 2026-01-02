@@ -3,9 +3,9 @@ server:
 
 spring:
   application:
-    name: wirebarly-test-application
+    name: wirebarley-test-application
   datasource:
-    url: jdbc:mysql://localhost:7233/wirebarly?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:7233/wirebarley?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
@@ -27,6 +27,6 @@ spring:
     activate:
       on-profile: docker
   datasource:
-    url: jdbc:mysql://wirebarly-db:3306/wirebarly?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://wirebarley-db:3306/wirebarley?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: root
     password: root

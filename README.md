@@ -1,4 +1,4 @@
-# Wirebarly Test Project
+# Wirebarley Test Project
 
 이 프로젝트는 헥사고날 아키텍처(Hexagonal Architecture)를 기반으로 구축된 송금 시스템 서버 애플리케이션입니다.
 Docker Compose를 사용하여 애플리케이션과 MySQL 데이터베이스를 손쉽게 실행할 수 있도록 구성되어 있습니다.
@@ -37,7 +37,7 @@ Docker Compose를 사용하여 애플리케이션과 데이터베이스를 한 �
 ### 0. 프로젝트 다운로드 (Clone)
 
 ```bash
-git clone https://github.com/wirebarly/wirebarly-test.git
+git clone https://github.com/mirea70/ParkSeongJae_backend.git
 ```
 
 ### 1. 실행 (Build & Run)
@@ -58,15 +58,15 @@ docker ps
 ```
 
 두 개의 컨테이너가 **Up (healthy/running)** 상태여야 합니다.
-- `wirebarly-app`: Spring Boot 애플리케이션 (Port: 9091)
-- `wirebarly-db`: MySQL 데이터베이스 (Port: 7233 -> 3306)
+- `wirebarley-app`: Spring Boot 애플리케이션 (Port: 9091)
+- `wirebarley-db`: MySQL 데이터베이스 (Port: 7233 -> 3306)
 
 ### 3. 로그 확인
 
 애플리케이션 로그를 실시간으로 확인하려면 아래 명령어를 사용해주세요.
 
 ```bash
-docker logs -f wirebarly-app
+docker logs -f wirebarley-app
 ```
 
 ### 4. 종료
@@ -105,7 +105,7 @@ curl -X POST http://localhost:9091/api/v1/accounts/new \
 
 - **Host Link**: `localhost`
 - **Port**: `7233` (컨테이너 내부 3306 포트가 호스트의 7233으로 매핑됨)
-- **Database**: `wirebarly`
+- **Database**: `wirebarley`
 - **Username**: `root`
 - **Password**: `root`
 
