@@ -67,8 +67,8 @@ public class AccountService implements AccountUseCase {
         Long accountTransactionId = idGenerator.nextId();
         AccountTransaction accountTransaction = loadedAccount.domain().deposit(command.amount(), LocalDateTime.now(), accountTransactionId);
 
-        accountTransactionOutPort.insert(accountTransaction);
         accountOutPort.applyBalance(loadedAccount);
+        accountTransactionOutPort.insert(accountTransaction);
     }
 
     @Override
@@ -82,8 +82,8 @@ public class AccountService implements AccountUseCase {
         Long dailyWithdrawAmount = accountTransactionOutPort.getDailyWithdrawAmount(account.getId(), today);
         AccountTransaction accountTransaction = account.withdraw(command.amount(), LocalDateTime.now(), accountTransactionId, dailyWithdrawAmount);
 
-        accountTransactionOutPort.insert(accountTransaction);
         accountOutPort.applyBalance(loadedAccount);
+        accountTransactionOutPort.insert(accountTransaction);
     }
 
     public Loaded<Account> getValidatedAccount(Long accountId) {
