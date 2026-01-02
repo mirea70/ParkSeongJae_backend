@@ -2,6 +2,7 @@ package com.wirebarly.out.persistence.jpa.account.adapter;
 
 import com.wirebarly.account.model.Account;
 import com.wirebarly.account.model.AccountId;
+import com.wirebarly.account.model.AccountStatus;
 import com.wirebarly.common.model.Loaded;
 import com.wirebarly.out.PersistenceAdapter;
 import com.wirebarly.out.account.AccountOutPort;
@@ -28,7 +29,7 @@ public class AccountPersistenceAdapter implements AccountOutPort {
 
     @Override
     public Optional<Loaded<Account>> loadOne(AccountId id) {
-        return accountJpaRepository.findById(id.getValue())
+        return accountJpaRepository.findByAccountIdAndStatusAndClosedAtIsNull(id.getValue(), AccountStatus.ACTIVE.name())
                 .map(entity -> new JpaLoaded<>(entity.toDomain(), entity));
     }
 
