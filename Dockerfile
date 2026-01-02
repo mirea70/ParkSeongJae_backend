@@ -1,7 +1,7 @@
 FROM eclipse-temurin:21-jdk AS builder
 WORKDIR /app
 COPY . .
-RUN chmod +x gradlew && ./gradlew :adapter:bootJar -x test --parallel
+RUN chmod +x gradlew && ./gradlew :adapter:build --parallel
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
