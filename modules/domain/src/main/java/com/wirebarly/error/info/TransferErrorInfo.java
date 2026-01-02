@@ -14,7 +14,7 @@ public enum TransferErrorInfo implements ErrorInfo {
 
     // Amount
     OVER_TRANSFER_LIMIT(ErrorCategory.INVALID_VALUE, "OVER_TRANSFER_LIMIT", "송금할 수 있는 일일 한도를 초과하였습니다."),
-    TOO_SMALL_TRANSFER_AMOUNT(ErrorCategory.INVALID_VALUE, "TOO_SMALL_TRANSFER_AMOUNT", "송금액은 " + TransferPolicy.TRANSFER_MIN_AMOUNT + " 만 가능합니다.");
+    TOO_SMALL_TRANSFER_AMOUNT(ErrorCategory.INVALID_VALUE, "TOO_SMALL_TRANSFER_AMOUNT", "송금액은 " + TransferPolicy.TRANSFER_MIN_AMOUNT + " 이상만 가능합니다.");
 
     private final ErrorCategory category;
     private final String code;
