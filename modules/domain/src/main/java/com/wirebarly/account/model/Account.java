@@ -103,12 +103,13 @@ public class Account {
         if(amount == null) {
             throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_EXIST);
         }
-        if(amount <= 0) {
-            throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_POSITIVE);
-        }
         if(isClosed()) {
             throw new DomainException(AccountErrorInfo.CLOSED);
         }
+        if(amount <= 0) {
+            throw new DomainException(AccountErrorInfo.WITHDRAW_NOT_POSITIVE);
+        }
+
 
         Money withdrawAmount = new Money(amount);
         Money dailyUsed = new Money(dalyWithDrawAmount);
