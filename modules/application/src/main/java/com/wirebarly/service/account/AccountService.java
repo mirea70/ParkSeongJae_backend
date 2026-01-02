@@ -6,6 +6,7 @@ import com.wirebarly.account.model.AccountTransaction;
 import com.wirebarly.common.model.Loaded;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
+import com.wirebarly.error.exception.DomainException;
 import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.error.info.CustomerErrorInfo;
 import com.wirebarly.in.account.command.AccountCreateCommand;
@@ -18,6 +19,7 @@ import com.wirebarly.out.account.AccountTransactionOutPort;
 import com.wirebarly.out.common.IdGenerator;
 import com.wirebarly.out.customer.CustomerOutPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,15 +41,21 @@ public class AccountService implements AccountUseCase {
             throw new BusinessException(CustomerErrorInfo.NOT_FOUND);
         }
 
-        Account savedAccount = accountOutPort.insert(
-                Account.createNew(
-                        idGenerator.nextId(),
-                        command.customerId(),
-                        command.bankCode(),
-                        command.accountNumber(),
-                        LocalDateTime.now()
-                )
-        );
+        Account savedAccount;
+
+        try {
+            savedAccount = accountOutPort.insert(
+                    Account.createNew(
+                            idGenerator.nextId(),
+                            command.customerId(),
+                            command.bankCode(),
+                            command.accountNumber(),
+                            LocalDateTime.now()
+                    )
+            );
+        } catch (DataIntegrityViolationException e) {
+            throw new DomainException(AccountErrorInfo.DUPLICATED);
+        }
 
         return AccountResult.from(savedAccount);
     }

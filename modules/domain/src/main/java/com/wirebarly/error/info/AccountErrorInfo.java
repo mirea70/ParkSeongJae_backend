@@ -11,6 +11,7 @@ public enum AccountErrorInfo implements ErrorInfo {
     // Account
     NOT_FOUND(ErrorCategory.NOT_FOUND, "ACCOUNT_NOT_FOUND", "계좌를 찾을 수 없습니다."),
     CLOSED(ErrorCategory.INVALID_VALUE, "ACCOUNT_CLOSED", "해지된 계좌에는 요청이 불가능합니다."),
+    DUPLICATED(ErrorCategory.INVALID_VALUE, "ACCOUNT_DUPLICATED", "동일한 은행, 계좌번호는 하나의 계좌만 개설 가능합니다."),
 
     // AccountId
     ID_NOT_EXIST(ErrorCategory.INVALID_VALUE, "ACCOUNT_ID_NOT_EXIST", "계좌의 시스템ID 값이 비어있을 수 없습니다."),

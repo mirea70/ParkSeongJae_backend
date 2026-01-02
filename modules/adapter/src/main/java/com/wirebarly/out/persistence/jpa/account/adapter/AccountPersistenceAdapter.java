@@ -22,6 +22,7 @@ public class AccountPersistenceAdapter implements AccountOutPort {
     @Override
     public Account insert(Account account) {
         entityManager.persist(AccountJpaEntity.from(account));
+        entityManager.flush();
         return account;
     }
 

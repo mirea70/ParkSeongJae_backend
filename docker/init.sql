@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `customer` (
   `created_at` datetime(6) NOT NULL,
   `update_at` datetime(6) NOT NULL,
   `deleted_at` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`customer_id`)
+    PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS `account` (
   `created_at` datetime(6) NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   `closed_at` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`account_id`)
+    UNIQUE KEY `uk_account_bank_number` (`bank_code`, `account_number`),
+    PRIMARY KEY (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `transfer` (
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `transfer` (
   `amount` bigint NOT NULL,
   `fee` bigint NOT NULL,
   `transferred_at` datetime(6) NOT NULL,
-  PRIMARY KEY (`transfer_id`)
+    PRIMARY KEY (`transfer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `account_transaction` (
@@ -41,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `account_transaction` (
   `amount` bigint NOT NULL,
   `balance_after` bigint NOT NULL,
   `transacted_at` datetime(6) NOT NULL,
-  PRIMARY KEY (`account_transaction_id`)
+    PRIMARY KEY (`account_transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 왜래키 제약 조건
