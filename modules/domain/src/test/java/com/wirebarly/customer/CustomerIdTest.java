@@ -2,6 +2,7 @@ package com.wirebarly.customer;
 
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.CustomerErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,14 +34,15 @@ class CustomerIdTest {
     @DisplayName("유효하지 않은 값이 들어오면 예외를 던진다.")
     @ParameterizedTest
     @CsvSource(value = {
-            "null, 고객의 시스템ID 값이 비어있을 수 없습니다.",
-            "0, 고객의 시스템ID 값은 양의 정수여야 합니다.",
-            "-1, 고객의 시스템ID 값은 양의 정수여야 합니다.",
-    }, nullValues = {"null"})
-    void factoryWithLongWhenInvalid(Long input, String errorMessage) {
+            "null, ID_NOT_EXIST",
+            "0, ID_NOT_POSITIVE",
+            "-1, ID_NOT_POSITIVE",
+    }, nullValues = { "null" })
+    void factoryWithLongWhenInvalid(Long input, CustomerErrorInfo errorInfo) {
         // when // then
         assertThatThrownBy(() -> new CustomerId(input))
                 .isInstanceOf(DomainException.class)
-                .hasMessage(errorMessage);
+                .extracting("errorInfo")
+                .isEqualTo(errorInfo);
     }
 }

@@ -1,6 +1,7 @@
 package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.utils.MyStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +62,7 @@ class BankCodeTest {
         // when // then
         assertThatThrownBy(() -> BankCode.from(code))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("유효하지 않은 은행코드입니다.");
+                .extracting("errorInfo")
+                .isEqualTo(AccountErrorInfo.INVALID_BANK_CODE);
     }
 }

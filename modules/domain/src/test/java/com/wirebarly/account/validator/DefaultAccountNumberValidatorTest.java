@@ -3,6 +3,7 @@ package com.wirebarly.account.validator;
 import com.wirebarly.account.model.AccountNumber;
 import com.wirebarly.account.model.AccountNumberFactory;
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,32 +14,29 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DefaultAccountNumberValidatorTest {
-    private final DefaultAccountNumberValidator defaultAccountNumberValidator = new DefaultAccountNumberValidator();
+        private final DefaultAccountNumberValidator defaultAccountNumberValidator = new DefaultAccountNumberValidator();
 
-    @DisplayName("계좌번호의 기본적인 유효성 검증 실패시 에러를 발생시킨다.")
-    @ParameterizedTest
-    @MethodSource("accountNumberCases")
-    void validate(AccountNumber accountNumber, String errorMessage) {
-        // when // then
-        assertThatThrownBy(() -> defaultAccountNumberValidator.validate(accountNumber))
-                .isInstanceOf(DomainException.class)
-                .hasMessage(errorMessage);
-    }
+        @DisplayName("계좌번호의 기본적인 유효성 검증 실패시 에러를 발생시킨다.")
+        @ParameterizedTest
+        @MethodSource("accountNumberCases")
+        void validate(AccountNumber accountNumber, AccountErrorInfo errorInfo) {
+                // when // then
+                assertThatThrownBy(() -> defaultAccountNumberValidator.validate(accountNumber))
+                                .isInstanceOf(DomainException.class)
+                                .extracting("errorInfo")
+                                .isEqualTo(errorInfo);
+        }
 
-    static Stream<Arguments> accountNumberCases() {
-        return Stream.of(
-                Arguments.of(
-                        AccountNumberFactory.of("1324"),
-                        "계좌번호는 길이가 10 이상, 20 이하여야 합니다."
-                ),
-                Arguments.of(
-                        AccountNumberFactory.of("1324333333333333333333333333333333"),
-                        "계좌번호는 길이가 10 이상, 20 이하여야 합니다."
-                ),
-                Arguments.of(
-                        AccountNumberFactory.of("0000000000000"),
-                        "계좌번호의 값이 모두 0일 경우는 불가능합니다."
-                )
-        );
-    }
+        static Stream<Arguments> accountNumberCases() {
+                return Stream.of(
+                                Arguments.of(
+                                                AccountNumberFactory.of("1324"),
+                                                AccountErrorInfo.INVALID_NUMBER_SIZE),
+                                Arguments.of(
+                                                AccountNumberFactory.of("1324333333333333333333333333333333"),
+                                                AccountErrorInfo.INVALID_NUMBER_SIZE),
+                                Arguments.of(
+                                                AccountNumberFactory.of("0000000000000"),
+                                                AccountErrorInfo.NUMBER_NOT_ALL_ZERO));
+        }
 }

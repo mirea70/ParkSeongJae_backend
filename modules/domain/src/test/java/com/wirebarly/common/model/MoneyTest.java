@@ -1,6 +1,7 @@
 package com.wirebarly.common.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.CommonErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,14 +33,15 @@ class MoneyTest {
     @DisplayName("돈의 값이, 유효하지 않으면 예외를 던진다.")
     @ParameterizedTest
     @CsvSource(value = {
-            "null, 돈의 값이 비어있을 수 없습니다.",
-            "-1000, 돈의 값은 0 또는 양의 정수여야 합니다.",
-    }, nullValues = {"null"})
-    void validate(Long input, String errorMessage) {
+            "null, Money_NOT_EXIST",
+            "-1000, Money_NOT_POSITIVE",
+    }, nullValues = { "null" })
+    void validate(Long input, CommonErrorInfo errorInfo) {
         // when // then
         assertThatThrownBy(() -> Money.validate(input))
                 .isInstanceOf(DomainException.class)
-                .hasMessage(errorMessage);
+                .extracting("errorInfo")
+                .isEqualTo(errorInfo);
     }
 
     @DisplayName("돈의 증가는 새로운 값 객체에 더해져 반환된다.")

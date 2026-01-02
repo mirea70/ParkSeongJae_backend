@@ -1,6 +1,7 @@
 package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +17,7 @@ class AccountStatusTest {
 
     @DisplayName("입력 문자열에 매칭되는 계좌 상태의 Enum을 반환한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"ACTIVE", "active"})
+    @ValueSource(strings = { "ACTIVE", "active" })
     void from(String status) {
         // when
         AccountStatus result = AccountStatus.from(status);
@@ -27,12 +28,13 @@ class AccountStatusTest {
 
     @DisplayName("입력 문자열이 유효하지 않으면 예외를 던진다.")
     @ParameterizedTest
-    @ValueSource(strings = {"가짜"})
+    @ValueSource(strings = { "가짜" })
     @NullSource
     void fromWhenInvalid(String input) {
         // when // then
         assertThatThrownBy(() -> AccountStatus.from(input))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("유효하지 않은 계좌 상태입니다.");
+                .extracting("errorInfo")
+                .isEqualTo(AccountErrorInfo.INVALID_STATUS);
     }
 }

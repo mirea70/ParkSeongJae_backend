@@ -1,6 +1,7 @@
 package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountTransactionErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +17,7 @@ class AccountTransactionTypeTest {
 
     @DisplayName("입력 문자열에 매칭되는 Type의 Enum을 반환한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"DEPOSIT", "deposit"})
+    @ValueSource(strings = { "DEPOSIT", "deposit" })
     void from(String type) {
         // when
         AccountTransactionType result = AccountTransactionType.from(type);
@@ -27,12 +28,13 @@ class AccountTransactionTypeTest {
 
     @DisplayName("입력 문자열이 유효하지 않으면 예외를 던진다.")
     @ParameterizedTest
-    @ValueSource(strings = {"가짜"})
+    @ValueSource(strings = { "가짜" })
     @NullSource
     void fromWhenInvalid(String input) {
         // when // then
         assertThatThrownBy(() -> AccountTransactionType.from(input))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("유효하지 않은 계좌 거래 타입입니다.");
+                .extracting("errorInfo")
+                .isEqualTo(AccountTransactionErrorInfo.INVALID_TYPE);
     }
 }

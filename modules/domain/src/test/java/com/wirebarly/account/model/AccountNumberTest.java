@@ -1,6 +1,7 @@
 package com.wirebarly.account.model;
 
 import com.wirebarly.error.exception.DomainException;
+import com.wirebarly.error.info.AccountErrorInfo;
 import com.wirebarly.utils.MyStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +56,7 @@ class AccountNumberTest {
         // when // then
         assertThatThrownBy(() -> new AccountNumber(null))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("계좌번호의 값이 비어있을 수 없습니다.");
+                .extracting("errorInfo")
+                .isEqualTo(AccountErrorInfo.NUMBER_NOT_EXIST);
     }
 }

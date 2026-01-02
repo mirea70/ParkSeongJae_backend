@@ -7,6 +7,8 @@ import com.wirebarly.account.model.BankCode;
 import com.wirebarly.common.model.Loaded;
 import com.wirebarly.customer.model.CustomerId;
 import com.wirebarly.error.exception.BusinessException;
+import com.wirebarly.error.info.AccountErrorInfo;
+import com.wirebarly.error.info.CustomerErrorInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +58,8 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
         // when // then
         assertThatThrownBy(() -> accountService.remove(1L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("계좌를 찾을 수 없습니다.");
+                .extracting("errorInfo")
+                .isEqualTo(AccountErrorInfo.NOT_FOUND);
     }
 
     @DisplayName("계좌를 소유한 고객이 존재하지 않으면 예외를 던진다.")
@@ -68,8 +71,7 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
                 2L,
                 BankCode.IBK.getCode(),
                 "1231231231",
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         Loaded<Account> loadedAccount = new TestLoaded<>(account);
 
@@ -79,6 +81,7 @@ class AccountServiceRemoveTest extends AccountServiceTestSupport {
         // when // then
         assertThatThrownBy(() -> accountService.remove(1L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("고객을 찾을 수 없습니다.");
+                .extracting("errorInfo")
+                .isEqualTo(CustomerErrorInfo.NOT_FOUND);
     }
 }
