@@ -3,7 +3,7 @@ package com.wirebarly.out.generator;
 import com.wirebarly.out.common.IdGenerator;
 import org.springframework.stereotype.Component;
 
-import java.util.random.RandomGenerator;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class SnowflakeIdGenerator implements IdGenerator {
@@ -15,7 +15,7 @@ public class SnowflakeIdGenerator implements IdGenerator {
     private static final long maxNodeId = (1L << NODE_ID_BITS) - 1;
     private static final long maxSequence = (1L << SEQUENCE_BITS) - 1;
 
-    private final long nodeId = RandomGenerator.getDefault().nextLong(maxNodeId + 1);
+    private final long nodeId = ThreadLocalRandom.current().nextLong(maxNodeId + 1);
     // UTC = 2025-12-26T00:00:00Z
     private final long startTimeMillis = 1766707200000L;
 
