@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "account_transactions")
+@Table(name = "account_transaction")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class AccountTransactionJpaEntity {
